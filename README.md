@@ -12,6 +12,7 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 - **Server Integration**: Central server hosted on Raspberry Pi or Orange Pi with built-in MQTT broker.
 - **Standalone Operation**: No external Wi-Fi router required.
 - **Rechargeable Design**: Pods are equipped with rechargeable batteries and stackable charging connectors.
+- **Sound Indication**: Pods are soundy to easily identify their location or understand the commands
 
 ---
 
@@ -23,9 +24,10 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 3. **RGB LEDs** (e.g., WS2812B or similar)
 4. **Sensors**:
    - Accelerometer (e.g., MPU6050) for impact detection
-   - Optional: Capacitive touch sensor or force-sensitive resistor
+   - Optional: Capacitive touch sensor or force-sensitive resistor (piezo)
 5. **Rechargeable Battery** (e.g., LiPo or 18650 cells)
 6. **Battery Management Module** (e.g., TP4056 for charging)
+7. **Buzzer**
 
 ### Optional Components
 - Piezoelectric sensors for alternative impact detection
@@ -65,32 +67,17 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 ## Getting Started
 
 ### Step 1: Set Up the Server
-1. Install the required software:
-   ```bash
-   sudo apt update
-   sudo apt install mosquitto mosquitto-clients python3 python3-pip
-   pip3 install flask
-   ```
-2. Configure the Raspberry Pi as a Wi-Fi hotspot (see detailed instructions in the documentation).
-3. Start the MQTT broker:
-   ```bash
-   mosquitto
-   ```
-4. (Optional) Run a web server for control:
-   ```bash
-   python3 -m flask run --host=0.0.0.0
-   ```
+   ```TBA
+
 
 ### Step 2: Program the Pods
 1. Write firmware for the ESP32 using Arduino IDE or PlatformIO.
 2. Connect the pod to the server:
-   ```cpp
-   client.setServer("192.168.4.1", 1883); // Replace with server IP
-   ```
 3. Test sensor and LED functionality.
 
 ### Step 3: Build the Pods
 1. Assemble the hardware:
+   - Purchase a PCB
    - Mount the ESP32, battery, and sensors in the enclosure.
    - Wire the RGB LEDs and sensor to the ESP32.
 2. Design the enclosure:
