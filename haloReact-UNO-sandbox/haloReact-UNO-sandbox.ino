@@ -26,6 +26,7 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT);
   
   FastLED.addLeds<NEOPIXEL, LED_PIN_RGB>(leds, NUM_LEDS);  // GRB ordering is assumed
+  FastLED.setBrightness(30);
 }
 
 void loop() {
@@ -39,19 +40,29 @@ void loop() {
 
   // control LED according to the state of button
   if (button_state == HIGH || val >= threshold)  {      // if button is pressed
-    for (int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CRGB::Red;
-    }
-    FastLED.show();
+    lightRGB(CRGB::Red);
+    playTone();
     Serial.println("Button Pressed");
   } else {                          // otherwise, button is not pressing
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::Black;
-  }
-    FastLED.show();
+    lightRGB(CRGB::Black);
     Serial.println("Button De-Pressed");
   }
 
   delay(500);
 
+}
+
+void lightRGB (CRGB color) {
+    for (int i = 0; i < NUM_LEDS; i++) {
+      leds[i] = color;
+    }
+    FastLED.show();
+}
+
+void playTone () {
+  tone(BUZZ_PIN, 440);
+  delay(20);
+  tone(BUZZ_PIN, 494);
+  delay(20);
+  noTone(BUZZ_PIN);
 }
