@@ -1,16 +1,14 @@
 #include <WiFi.h>
-#include <sMQTTBroker.h>
 #include <PubSubClient.h>
 
+/* ToBe PROD
 const char* ssid     = "HaloReact";
 const char* password = "HaloReact1122";
+*/
 
-// Set web server port number to 80
-WiFiServer server(80);
-char* pod_role = "server";
-
-// MQTT Broker
-sMQTTBroker mqttBroker;
+// Test Wifi
+const char* ssid     = "Ognianov.450";
+const char* password = "Start2018";
 
 // MQTT Client
 WiFiClient espClient;
@@ -31,7 +29,7 @@ void setup() {
   /*
   * Normal pin initialization
   */
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   // initialize the LED pin as an output:
   pinMode(LED_PIN_RED, OUTPUT);

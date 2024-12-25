@@ -1,4 +1,4 @@
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 #include <FastLED.h>
 
@@ -24,16 +24,18 @@ const char* ACTION_TOPIC = "pod_action";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// Unique ESP8266 identifier
-String unique_id = "ESP8266_" + String(ESP.getChipId(), HEX);
+// Unique ESP32 identifier
+uint64_t chipId = ESP.getEfuseMac(); // Get the 64-bit MAC address
+String unique_id = "ESP32_" + String((uint16_t)(chipId >> 32), HEX) + String((uint32_t)chipId, HEX);
 
-//Define pins
-#define BUTTON_PIN  D0 // NodeMCU pin GPIO21, which connected to button
-#define LED_PIN_RED D4 // NodeMCU pin GPIO19, which connected to led red
-#define LED_PIN_RGB D1     // NodeMCU pin GPIO18, which connected to the RGB LED
+
+// Define pins
+#define BUTTON_PIN 21      // ESP32 pin GPIO21, which connected to button
+#define LED_PIN_RED 19     // ESP32 pin GPIO19, which connected to led red
+#define BUZZ_PIN 5         // ESP32 pin GPIO5, which connected to the buzzer
+#define LED_PIN_RGB 18     // ESP32 pin GPIO18, which connected to the RGB LED
 #define NUM_LEDS 12        // Number of LEDs
-#define BUZZ_PIN D2       // NodeMCU pin GPIO5, which connected to the buzzer
-#define PIEZO_PIN A0       // NodeMCU ADC pin on VP
+#define PIEZO_PIN 36       // ESP32 ADC pin on VP
 const int piezo_threshold = 40;
 
 // Define the array of leds
@@ -53,14 +55,14 @@ void setup() {
 
   // initialize the button pin as an pull-up input:
   // the pull-up input pin will be HIGH when the button is open and LOW when the button is pressed.
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT_PULLUP); 
 
   pinMode(PIEZO_PIN, INPUT); // Configure the piezo pin as input
 
   // Setup The LED
   FastLED.addLeds<NEOPIXEL, LED_PIN_RGB>(leds, NUM_LEDS);  // GRB ordering is assumed
   FastLED.setBrightness(30);
-  
+
   setup_wifi();
 
   unique_id.toUpperCase();
@@ -74,7 +76,7 @@ void setup() {
   reconnect();
 }
 
-void loop() {  
+void loop() {
   if (!client.connected()) {
     reconnect();
   }
@@ -108,7 +110,8 @@ void loop() {
     client.publish(STATUS_TOPIC, status_to_publish.c_str());
   }
 
-  delay(500);
+  delay(50);
+
 }
 
 void callback(char* topic, byte* message, unsigned int length) {
@@ -157,11 +160,6 @@ void callback(char* topic, byte* message, unsigned int length) {
     lightRGB(color);
     Serial.print("Updated LED color to: ");
     Serial.println(color_hex);
-    if (color_hex == "#000000") {
-      digitalWrite(LED_PIN_RED, HIGH);
-    } else {
-      digitalWrite(LED_PIN_RED, LOW);
-    }
 
     // Call the specified function
     playSound(function_name);
@@ -171,7 +169,6 @@ void callback(char* topic, byte* message, unsigned int length) {
 // Connect to WiFi
 void setup_wifi() {
   delay(100);
-  Serial.println("");
   Serial.print("Trying to connect to ");
   Serial.println(ssid);
   Serial.println("Connecting to WiFi...");
@@ -182,7 +179,7 @@ void setup_wifi() {
   }
   Serial.println("");
   Serial.println("WiFi connected.");
-  Serial.print("IP address: ");
+  Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
 
@@ -321,4 +318,3 @@ void playMessageNudge() {
   delay(100);                // Short pause
   tone(BUZZ_PIN, 988, 100);  // B5 (988 Hz) for 100ms
 }
-

@@ -1,4 +1,5 @@
 #include <FastLED.h>
+#include "HaloReactLib.h"
 
 // Define pins
 #define BUTTON_PIN  4
@@ -10,7 +11,7 @@
 // variables will change:
 int button_state = 0;   // variable for reading the button status
 
-const int threshold = 10;
+const int threshold = 40;
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -40,16 +41,26 @@ void loop() {
 
   // control LED according to the state of button
   if (button_state == HIGH || val >= threshold)  {      // if button is pressed
-    lightRGB(CRGB::Red);
-    playTone();
+    lightRGB(CRGB::White, 100);
+    
+    playDeviceConnect();
+    delay(1000);
+    playDeviceDisconnect();
+    delay(1000);
+
     Serial.println("Button Pressed");
   } else {                          // otherwise, button is not pressing
-    lightRGB(CRGB::Black);
+    lightRGB(CRGB::Orange, 20);
     Serial.println("Button De-Pressed");
   }
 
   delay(500);
 
+}
+
+void lightRGB(CRGB color, int brightness) {
+  FastLED.setBrightness(brightness);
+  lightRGB(color);
 }
 
 void lightRGB (CRGB color) {
@@ -59,10 +70,76 @@ void lightRGB (CRGB color) {
     FastLED.show();
 }
 
-void playTone () {
-  tone(BUZZ_PIN, 440);
-  delay(20);
-  tone(BUZZ_PIN, 494);
-  delay(20);
+// Short tone for "Start Signal" (e.g., whistle-like)
+void playStartSignal() {
+  for (int i = 0; i < 3; i++) {
+    tone(BUZZ_PIN, 800, 80);  // Lower tone
+    delay(100);
+    tone(BUZZ_PIN, 1000, 80); // Middle tone
+    delay(100);
+    tone(BUZZ_PIN, 1200, 80); // Higher tone
+    delay(100);
+  }
   noTone(BUZZ_PIN);
+}
+
+// Motivational tone for "Goal Signal" (e.g., celebratory chirp)
+void playGoalSignal() {
+  tone(BUZZ_PIN, 1200, 100); // High pitch
+  delay(50);
+  tone(BUZZ_PIN, 800, 100);  // Low pitch
+  delay(50);
+  tone(BUZZ_PIN, 1000, 200); // Middle pitch for celebration
+  delay(200);
+  noTone(BUZZ_PIN);
+}
+
+// Signal for "End of Activity" (e.g., descending tone)
+void playEndSignal() {
+  for (int i = 0; i < 3; i++) {
+    tone(BUZZ_PIN, 1200 - (i * 200), 100); // Gradually lower pitch
+    delay(150);
+    tone(BUZZ_PIN, 800 + (i * 100), 100); // Alternate harmonic pitch
+    delay(150);
+  }
+  noTone(BUZZ_PIN);
+}
+
+
+// Function to play the Windows "Asterisk" sound
+void playAsteriskSound() {
+  tone(BUZZ_PIN, 880, 100);  // A5 (880 Hz) for 100ms
+  delay(120);                // Short pause
+  tone(BUZZ_PIN, 1047, 150); // C6 (1047 Hz) for 150ms
+  noTone(BUZZ_PIN);
+}
+
+// Function to play the Windows "Calendar Reminder" sound
+void playCalendarReminder() {
+  tone(BUZZ_PIN, 1047, 150); // C6 (1047 Hz) for 150ms
+  delay(200);                // Short pause
+  tone(BUZZ_PIN, 880, 150);  // A5 (880 Hz) for 150ms
+  delay(200);                // Short pause
+  tone(BUZZ_PIN, 698, 200);  // F5 (698 Hz) for 200ms
+}
+
+// Function to play the Windows "Device Connect" sound
+void playDeviceConnect() {
+  tone(BUZZ_PIN, 784, 150);  // G5 (784 Hz) for 150ms
+  delay(200);                // Short pause
+  tone(BUZZ_PIN, 988, 200);  // B5 (988 Hz) for 200ms
+}
+
+// Function to play the Windows "Device Disconnect" sound
+void playDeviceDisconnect() {
+  tone(BUZZ_PIN, 988, 150);  // B5 (988 Hz) for 150ms
+  delay(200);                // Short pause
+  tone(BUZZ_PIN, 784, 200);  // G5 (784 Hz) for 200ms
+}
+
+// Function to play the Windows "Message Nudge" sound
+void playMessageNudge() {
+  tone(BUZZ_PIN, 880, 100);  // A5 (880 Hz) for 100ms
+  delay(100);                // Short pause
+  tone(BUZZ_PIN, 988, 100);  // B5 (988 Hz) for 100ms
 }
