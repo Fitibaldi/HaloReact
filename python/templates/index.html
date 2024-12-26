@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outrun Yourself</title>
+</head>
+<body>
+    <h1>Outrun Yourself!</h1>
+    <p>All the pods start with different colors. Turn them off as fast as you can!</p>
+    <button id="start-button">Start Game</button>
+    <p id="timer"></p>
+
+    <script>
+        document.getElementById("start-button").addEventListener("click", () => {
+            fetch("/start_game", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                });
+        });
+
+        function updateTimer() {
+            fetch("/get_timer")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("timer").textContent = `Timer: ${data.time}`;
+                });
+        }
+
+        setInterval(updateTimer, 1000); // Update timer every second
+    </script>
+</body>
+</html>

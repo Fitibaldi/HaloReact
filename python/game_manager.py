@@ -1,4 +1,6 @@
 import paho.mqtt.client as mqtt
+import time
+from threading import Timer
 
 # MQTT broker details
 BROKER = "localhost"  # Change to your broker's IP if not local
@@ -8,24 +10,46 @@ PORT = 1883
 STATUS_TOPIC = "pod_status"
 ACTION_TOPIC = "pod_action"
 
-# Array of nodes
+# Game State
 nodes = []
+game_timer_start = None
+game_timer_end = None
+active_nodes = set()
+game_name = None
 
 # Algorithm function
 def determine_action(status_message):
-    # Split the status_message into parts
-    # The max possible parts are: Command, NodeID, ButtonStatus, and CurrColor
+    global game_timer_start, game_timer_end, active_nodes
+
     parts = status_message.split('|')
     command = parts[0]
 
-    # Check the Command
     if command == "HELLO":
-        # Add the node to the list of players and return HELLO
         return add_node(parts[1])
         
-    elif command == "START":
-        message = start_game(parts[1])
-        return message + f"\n:: {parts[1]} STARTED ::"
+    elif command == "START" and parts[1] == "OUTRUN":
+        return start_game_OUTRUN()
+        
+    elif command == "STAT" and game_name == "OUTRUN":
+        print("In game action")
+        node_id = parts[1]
+        # Check if ButtonStatus is "HIGH"
+        if parts[2] == "HIGH":
+            # Turn off the pod and record time
+            active_nodes.discard(node_id)
+            action = f"NSTAT|{node_id}|#000000|playDeviceDisconnect"
+
+            if len(active_nodes) + 1 == len(nodes):  # First node clicked
+                game_timer_start = time.time()
+                print("Timer started!")
+            elif not active_nodes:  # Last node clicked
+                game_timer_end = time.time()
+                duration = game_timer_end - game_timer_start
+                print(f"Game finished in {duration:.2f} seconds!")
+                action += f"\nENDGAME|{duration:.2f} seconds!"
+            
+            return action
+        return ""
         
     elif command == "STAT":
         # Check if ButtonStatus is "HIGH"
@@ -43,14 +67,19 @@ def determine_action(status_message):
     return f"ERR|unknown exception for message {status_message}"
 
 # Function to start a game
-# Later this function will determine the game as well
-def start_game(game_name):
+def start_game_OUTRUN():
+    global active_nodes, game_name
+    active_nodes = {node["id"] for node in nodes}
+    
+    game_name = "OUTRUN"
+    
     message = ""
-    for node in nodes:
-        print(f"NSTAT|{node['id']}|#000050|playDeviceConnect")
-        message += f"\nNSTAT|{node['id']}|#000050|playDeviceConnect"
+    for i, node in enumerate(nodes):
+        color = f"#{i:02x}{255 - i:02x}{i * 2:02x}"  # Generate a unique HEX color
+        message += f"NSTAT|{node['id']}|{color}|playStartSignal\n"
         
-    return message.strip() # Remobing the trailing new Line
+    message += f":: {game_name} STARTED ::"
+    return message.strip()
 
 # Function to add a new node dynamically
 def add_node(node_id):
@@ -58,7 +87,7 @@ def add_node(node_id):
     for node in nodes:
         if node["id"] == node_id:
             return f"ERR|Node {node_id} already exists."
-    
+            
     nodes.append({"id": node_id, "status": "active"})
     print(f"Added new node: {node_id}")
     return f"HELLO|{node_id}|DON'T PANIC"
@@ -66,34 +95,26 @@ def add_node(node_id):
 # Callback when a message is received
 def on_message(client, userdata, msg):
     print(f"Received message on topic {msg.topic}: {msg.payload.decode()}")
-    # Process the message and determine the action
     action = determine_action(msg.payload.decode())
-    # Loop over each row in the returned message and publish it
     for row in action.split("\n"):
-        # Publish the action to the ACTION_TOPIC
-        client.publish(ACTION_TOPIC, row)
-        print(f"Published action: {row}")
+        if row.strip():
+            client.publish(ACTION_TOPIC, row)
+            print(f"Published action: {row}")
 
 # Callback when the client connects to the broker
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT Broker!")
-        # Subscribe to the STATUS_TOPIC
         client.subscribe(STATUS_TOPIC)
     else:
         print(f"Failed to connect, return code {rc}")
 
 # Main MQTT setup
 def main():
-    # Initialize the MQTT client
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
-
-    # Connect to the MQTT broker
     client.connect(BROKER, PORT, 60)
-
-    # Loop forever, processing incoming messages
     client.loop_forever()
 
 if __name__ == "__main__":

@@ -71,17 +71,24 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 1. Make it to be AP (TBA)
 2. Install Mosquitto
 2.1. Start Mosquitto
-	sudo systemctl start mosquitto
+	- sudo systemctl start mosquitto
 3. Setup MQTT topics
-	mosquitto_sub -h localhost -t pod_status
-	mosquitto_sub -h localhost -t pod_action
-	mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
-	mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|Red"
+	- mosquitto_sub -h localhost -t pod_status
+	- mosquitto_sub -h localhost -t pod_action
+	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
+	- mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|Red"
 4. Create separate environment for python
-	source myenv/bin/activate
-5. Run thhe script
-	python3 simple_repeater.py
-
+	- source myenv/bin/activate
+5. Run the script
+	- python3 simple_repeater.py
+	- python3 game_manager.py
+6. Play a fake game
+	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
+	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N2"
+	- mosquitto_pub -h localhost -t pod_status -m "START|OUTRUN"
+	- mosquitto_pub -h localhost -t pod_status -m "STAT|N2|HIGH|#121212"
+	- sleep 8
+	- mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|#121212"
 
 
 ### Step 2: Program the Pods
