@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import time
+import random
 from threading import Timer
 
 # MQTT broker details
@@ -16,6 +17,7 @@ game_timer_start = None
 game_timer_end = None
 active_nodes = set()
 game_name = None
+current_blinking_pod = None
 
 # Algorithm function
 def determine_action(status_message):
@@ -50,6 +52,20 @@ def determine_action(status_message):
             
             return action
         return ""
+
+    elif command == "START" and parts[1] == "RANDOM":
+        return start_random_game()
+
+    elif command == "STOP" and parts[1] == "RANDOM":
+        return stop_random_game()
+
+    elif command == "STAT" and game_name == 'RANDOM':
+        node_id = parts[1]
+        if parts[2] == "HIGH" and node_id == current_blinking_pod:
+            # Turn off the current blinking pod and select a new one
+            current_blinking_pod = random.choice([n["id"] for n in nodes if n["id"] != node_id])
+            return f"NSTAT|{node_id}|#000000|playDeviceDisconnect\nNSTAT|{current_blinking_pod}|#00FF00|playStartSignal"
+        return ""     
         
     elif command == "STAT":
         # Check if ButtonStatus is "HIGH"
@@ -80,6 +96,24 @@ def start_game_OUTRUN():
         
     message += f":: {game_name} STARTED ::"
     return message.strip()
+
+# Function to handle the start of the Randomize Me! game
+def start_random_game():
+    global current_blinking_pod, game_name
+    
+    game_name = 'RANDOM'
+    
+    current_blinking_pod = random.choice(nodes)["id"]  # Pick a random node
+    return f"NSTAT|{current_blinking_pod}|#00FF00|playStartSignal"
+
+# Function to handle the stop of the Randomize Me! game
+def stop_random_game():
+    global  current_blinking_pod, game_name
+    
+    game_name = None
+    
+    current_blinking_pod = None
+    return "\n".join([f"NSTAT|{node['id']}|#000000|playDeviceDisconnect" for node in nodes])
 
 # Function to add a new node dynamically
 def add_node(node_id):

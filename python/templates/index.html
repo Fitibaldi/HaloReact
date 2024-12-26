@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outrun Yourself</title>
+    <title>HaloReact</title>
 </head>
 <body>
     <h1>Outrun Yourself!</h1>
@@ -29,6 +29,31 @@
         }
 
         setInterval(updateTimer, 1000); // Update timer every second
+    </script>
+    <h1>Randomize Me!</h1>
+    <p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
+    <button id="start-random-game">Start Game</button>
+    <button id="end-random-game">End Game</button>
+    <p id="status"></p>
+
+    <script>
+        document.getElementById("start-random-game").addEventListener("click", () => {
+            fetch("/start_random_game", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                    document.getElementById("status").textContent = data.message;
+                });
+        });
+
+        document.getElementById("end-random-game").addEventListener("click", () => {
+            fetch("/end_random_game", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                    document.getElementById("status").textContent = data.message;
+                });
+        });
     </script>
 </body>
 </html>

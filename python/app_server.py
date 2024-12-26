@@ -45,6 +45,21 @@ def get_timer():
             return jsonify({"time": game_result}), 200
     return jsonify({"time": "Timer running..."}), 200
 
+# Flask Route to Start the Randomize Me! Game
+@app.route("/start_random_game", methods=["POST"])
+def start_random_game():
+    global game_result
+    with result_lock:
+        game_result = None  # Reset game result when starting a new game
+    client.publish(MQTT_TOPIC_STATUS, "START|RANDOM")
+    return jsonify({"message": "Randomize Me! game started"}), 200
+
+# Flask Route to End the Randomize Me! Game
+@app.route("/end_random_game", methods=["POST"])
+def end_random_game():
+    client.publish(MQTT_TOPIC_STATUS, "STOP|RANDOM")
+    return jsonify({"message": "Randomize Me! game ended"}), 200
+
 # MQTT Client Setup
 client = mqtt.Client()
 client.on_message = on_message
