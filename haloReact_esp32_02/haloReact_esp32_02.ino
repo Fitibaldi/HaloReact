@@ -3,14 +3,15 @@
 #include <FastLED.h>
 
 
-/* ToBe PROD
+// ToBe PROD
 const char* ssid     = "HaloReact";
 const char* password = "HaloReact1122";
-*/
 
-// Test Wifi
+
+/* Test Wifi
 const char* ssid = "Ognianovi.Guest";
 const char* password = "Ognianovi1234";
+*/
 
 // MQTT broker details
 const char* mqtt_server = "192.168.0.200";
