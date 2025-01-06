@@ -21,7 +21,7 @@ current_blinking_pod = None
 
 # Algorithm function
 def determine_action(status_message):
-    global game_timer_start, game_timer_end, active_nodes
+    global game_timer_start, game_timer_end, active_nodes, current_blinking_pod
 
     parts = status_message.split('|')
     command = parts[0]

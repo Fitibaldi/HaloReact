@@ -31,7 +31,6 @@ String unique_id = "ESP32_" + String((uint16_t)(chipId >> 32), HEX) + String((ui
 
 // Define pins
 #define BUTTON_PIN 21      // ESP32 pin GPIO21, which connected to button
-#define LED_PIN_RED 19     // ESP32 pin GPIO19, which connected to led red
 #define BUZZ_PIN 5         // ESP32 pin GPIO5, which connected to the buzzer
 #define LED_PIN_RGB 18     // ESP32 pin GPIO18, which connected to the RGB LED
 #define NUM_LEDS 12        // Number of LEDs
@@ -49,9 +48,6 @@ void setup() {
   delay(2000);  // Wait 2 seconds before starting serial communication
 
   Serial.begin(115200);
-
-  // initialize the LED pin as an output:
-  pinMode(LED_PIN_RED, OUTPUT);
 
   // initialize the button pin as an pull-up input:
   // the pull-up input pin will be HIGH when the button is open and LOW when the button is pressed.
