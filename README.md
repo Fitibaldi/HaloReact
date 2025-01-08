@@ -20,17 +20,17 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 
 ### Core Components
 1. **ESP32 Microcontroller** (one per pod)
-2. **Raspberry Pi or Orange Pi** (for server functionality)
+2. **Raspberry Pi Zero 2W or Orange Pi Zero** (for server functionality)
 3. **RGB LEDs** (e.g., WS2812B or similar)
 4. **Sensors**:
    - Piezoelectric sensors for alternative impact detection
 5. **Rechargeable Battery** (e.g., LiPo or 18650 cells)
 6. **Battery Management Module** (e.g., TP4056 for charging)
-7. **Buzzer**
+7. **Buzzer** to play sounds
 8. PCB to mount everything
 
 ### Optional Components
-- Accelerometer (e.g., MPU6050) for impact detection
+- Optional: Accelerometer (e.g., MPU6050) for impact detection
 - Optional: Capacitive touch sensor or force-sensitive resistor (piezo)
 - Enclosure materials (e.g., 3D-printed cases, transparent tops)
 - Magnetic connectors (pogo pins) for stackable charging
@@ -40,7 +40,7 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 ## Software Requirements
 
 ### Server Side
-- **Operating System**: Raspberry Pi OS or compatible Linux distro for Orange Pi
+- **Operating System**: Raspberry Pi OS or compatible Linux distro for Orange Pi (Armbian)
 - **Software**:
   - Python 3
   - MQTT Broker (e.g., Mosquitto)
@@ -50,18 +50,15 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 - **ESP-IDF** or **Arduino Framework** for programming ESP32
 - Libraries:
   - `PubSubClient` for MQTT
-  - `Adafruit_NeoPixel` for LED control
-  - `Wire` for I2C communication with sensors
+  - `FastLED` for LED control
+  - `WiFi` for wireless communication
 
 ---
 
 ## System Architecture
-1. **Wi-Fi Router Mode**:
-   - Raspberry Pi or Orange Pi acts as a Wi-Fi hotspot.
-   - Pods connect to the server via MQTT.
-2. **Mesh Networking**:
-   - ESP32 pods communicate with each other using ESP-Mesh.
-   - Server manages coordination and control.
+- ESP-C3 acts as a Wi-Fi hotspot.
+- Raspberry Pi/Orange Pi acts as a App Server, Python game manager and MQTT broker
+- Pods connect to the server via MQTT.
 
 ---
 
@@ -70,19 +67,35 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 ### Step 1: Set Up the Server
 1. Make it to be AP (TBA)
 2. Install Mosquitto
+	- apt install mosquitto mosquitto-client
 2.1. Start Mosquitto
 	- sudo systemctl start mosquitto
+2.2. Configure Mosquitto to listen on IP, not only on localhost
+	- netstat -tlnp | grep 1883
+	- Open the configuration file:
+		- sudo nano /etc/mosquitto/mosquitto.conf
+	- Add or modify the following lines:
+		- listener 1883
+		- allow_anonymous true
+	- Restart the broker:
+		- sudo systemctl restart mosquitto
 3. Setup MQTT topics
 	- mosquitto_sub -h localhost -t pod_status
 	- mosquitto_sub -h localhost -t pod_action
 	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
 	- mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|Red"
-4. Create separate environment for python
+4. Install python
+	- apt install python3 python3-pip
+5. Create separate environment for python and activate it
+	- python3 -m venv myenv
 	- source myenv/bin/activate
-5. Run the script
+6. Install Flask App Server
+	- pip3 install flask
+	- pip install paho-mqtt
+7. Run the script
 	- python3 simple_repeater.py
 	- python3 game_manager.py
-6. Play a fake game
+8. Play a fake game
 	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
 	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N2"
 	- mosquitto_pub -h localhost -t pod_status -m "START|OUTRUN"
