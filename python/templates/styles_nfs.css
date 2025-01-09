@@ -1,0 +1,155 @@
+/* General page styling */
+body {
+    font-family: 'Orbitron', sans-serif; /* Futuristic-style font */
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    background-image: radial-gradient(circle, #0d0d0d, #000);
+    color: #00ffcc;
+    text-shadow: 0 0 5px rgba(0, 255, 204, 0.8);
+}
+
+/* Header styling */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #111;
+    border-bottom: 2px solid #00ffcc;
+}
+
+.banner {
+    max-width: 300px;
+    filter: brightness(1.2) contrast(1.1);
+}
+
+/* Toggle switch styling */
+.toggle-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: #00ffcc;
+    cursor: pointer;
+}
+
+/* Hide default checkbox */
+.toggle-label input[type="checkbox"] {
+    display: none;
+}
+
+/* Custom switch background */
+.toggle-switch {
+    width: 50px;
+    height: 24px;
+    background-color: #222;
+    border-radius: 24px;
+    position: relative;
+    transition: background-color 0.3s ease;
+    border: 1px solid #00ffcc;
+}
+
+/* Circular slider inside the switch */
+.toggle-switch::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    background-color: #00ffcc;
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
+}
+
+/* Change switch color when checked */
+.toggle-label input:checked + .toggle-switch {
+    background-color: #111;
+    border-color: #4caf50;
+}
+
+/* Move the slider to the right when checked */
+.toggle-label input:checked + .toggle-switch::before {
+    transform: translateX(26px);
+    background-color: #4caf50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+}
+
+/* Game section styling */
+.game {
+    margin: 30px 0;
+    border: 2px solid #00ffcc;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+}
+
+.game-banner {
+    padding: 20px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    text-align: center;
+    filter: brightness(1.1) contrast(1.2);
+}
+
+/* Headings with neon glow */
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #00ffcc;
+    padding: 10px;
+    border-bottom: 2px solid #00ffcc;
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
+}
+
+/* Paragraphs */
+p {
+    font-family: 'Orbitron', sans-serif;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    color: #00ffcc;
+}
+
+/* Dropdowns */
+select {
+    font-family: 'Orbitron', sans-serif;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    color: #00ffcc;
+}
+
+/* Buttons with neon glow */
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #222;
+    color: #00ffcc;
+    border: 2px solid #00ffcc;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0 0 5px rgba(0, 255, 204, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+}
+
+button:hover {
+    background-color: #4caf50;
+    color: #000;
+    border-color: #4caf50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .game-banner {
+        padding: 10px;
+    }
+
+    button {
+        width: 100%;
+    }
+}

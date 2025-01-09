@@ -4,20 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HaloReact</title>
-    <link rel="stylesheet" href="styles.css">
+    <link id="theme-stylesheet" rel="stylesheet" href="styles_classic.css"> <!-- Default stylesheet -->
+	<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <img src="banner.png" alt="HaloReact Banner" class="banner">
     </header>
 	
+	<section class="style-switcher">
+		<label for="style-select">Select Theme:</label>
+		<select id="style-select">
+			<option value="styles_classic.css">Classic</option>
+			<option value="styles_nfs.css">NFS Underground</option>
+			<option value="styles_wolfenstein.css">Wolfenstein</option>
+		</select>
+	</section>
+
 	<section class="toggle" id="muterator">
-    <label class="toggle-label" for="mute-toggle">
-        <input type="checkbox" id="mute-toggle" checked>
-        <span class="toggle-switch"></span>
-        Mute Game
-    </label>
-</section>
+		<label class="toggle-label" for="mute-toggle">
+			<input type="checkbox" id="mute-toggle" checked>
+			<span class="toggle-switch"></span>
+			Mute Game
+		</label>
+	</section>
 
 
     <section class="game" id="outrun-game">
@@ -87,6 +98,24 @@
         }
 
         setInterval(updateTimer, 1000); // Update timer every second
+
+    // Select the dropdown and the theme stylesheet link
+    const styleSelect = document.getElementById("style-select");
+    const themeStylesheet = document.getElementById("theme-stylesheet");
+
+    // Load the saved theme from localStorage if it exists
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+        themeStylesheet.href = savedTheme;
+        styleSelect.value = savedTheme;
+    }
+
+    // Add an event listener to switch styles when the user selects a new theme
+    styleSelect.addEventListener("change", (event) => {
+        const selectedTheme = event.target.value;
+        themeStylesheet.href = selectedTheme;
+        localStorage.setItem("selectedTheme", selectedTheme); // Save the selected theme
+    });
     </script>
 </body>
 </html>
