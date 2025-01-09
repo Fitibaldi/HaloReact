@@ -4,41 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HaloReact</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Outrun Yourself!</h1>
-    <p>All the pods start with different colors. Turn them off as fast as you can!</p>
-    <button id="start-button">Start Game</button>
-    <p id="timer"></p>
+    <header>
+        <img src="banner.png" alt="HaloReact Banner" class="banner">
+    </header>
+	
+	<section class="toggle" id="muterator">
+        <label class="toggle">
+            <input type="checkbox" id="mute-toggle" checked>
+            Mute Game
+        </label>
+	</section>
+
+    <section class="game" id="outrun-game">
+        <div class="game-banner" style="background-image: url('game_outrun.png');">
+            <h1>Outrun Yourself!</h1>
+            <p>All the pods start with different colors. Turn them off as fast as you can!</p>
+            <button id="start-button">Start Game</button>
+            <p id="timer"></p>
+        </div>
+    </section>
+
+    <section class="game" id="randomize-game">
+        <div class="game-banner" style="background-image: url('game_randomize.png');">
+            <h1>Randomize Me!</h1>
+            <p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
+            <button id="start-random-game">Start Game</button>
+            <button id="end-random-game">End Game</button>
+            <p id="status"></p>
+        </div>
+    </section>
 
     <script>
+        function getMuteStatus() {
+            return document.getElementById("mute-toggle").checked ? "MUTE" : "UNMUTE";
+        }
+
         document.getElementById("start-button").addEventListener("click", () => {
-            fetch("/start_game", { method: "POST" })
+            fetch("/start_game", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mute: getMuteStatus() })
+            })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data.message);
                 });
         });
 
-        function updateTimer() {
-            fetch("/get_timer")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("timer").textContent = `Timer: ${data.time}`;
-                });
-        }
-
-        setInterval(updateTimer, 1000); // Update timer every second
-    </script>
-    <h1>Randomize Me!</h1>
-    <p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
-    <button id="start-random-game">Start Game</button>
-    <button id="end-random-game">End Game</button>
-    <p id="status"></p>
-
-    <script>
         document.getElementById("start-random-game").addEventListener("click", () => {
-            fetch("/start_random_game", { method: "POST" })
+            fetch("/start_random_game", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mute: getMuteStatus() })
+            })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data.message);
@@ -54,6 +75,16 @@
                     document.getElementById("status").textContent = data.message;
                 });
         });
+
+        function updateTimer() {
+            fetch("/get_timer")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("timer").textContent = `Timer: ${data.time}`;
+                });
+        }
+
+        setInterval(updateTimer, 1000); // Update timer every second
     </script>
 </body>
 </html>
