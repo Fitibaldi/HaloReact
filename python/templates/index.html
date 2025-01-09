@@ -12,38 +12,40 @@
     </header>
 	
 	<section class="toggle" id="muterator">
-        <label class="toggle">
-            <input type="checkbox" id="mute-toggle" checked>
-            Mute Game
-        </label>
-	</section>
+    <label class="toggle-label" for="mute-toggle">
+        <input type="checkbox" id="mute-toggle" checked>
+        <span class="toggle-switch"></span>
+        Mute Game
+    </label>
+</section>
+
 
     <section class="game" id="outrun-game">
         <div class="game-banner" style="background-image: url('game_outrun.png');">
             <h1>Outrun Yourself!</h1>
             <p>All the pods start with different colors. Turn them off as fast as you can!</p>
-            <button id="start-button">Start Game</button>
+            <button id="start-OUTRUN">Start Game</button>
             <p id="timer"></p>
         </div>
     </section>
 
     <section class="game" id="randomize-game">
         <div class="game-banner" style="background-image: url('game_randomize.png');">
-            <h1>Randomize Me!</h1>
-            <p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
-            <button id="start-random-game">Start Game</button>
-            <button id="end-random-game">End Game</button>
-            <p id="status"></p>
+			<h1>Randomize Me!</h1>
+			<p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
+			<button id="start-game-RANDOM">Start Game</button>
+			<button id="end-game-RANDOM">End Game</button>
+			<p id="status"></p>
         </div>
     </section>
 
     <script>
         function getMuteStatus() {
-            return document.getElementById("mute-toggle").checked ? "MUTE" : "UNMUTE";
+            return document.getElementById("mute-toggle").checked ? "MUTED" : "UNMUTED";
         }
 
-        document.getElementById("start-button").addEventListener("click", () => {
-            fetch("/start_game", {
+        document.getElementById("start-OUTRUN").addEventListener("click", () => {
+            fetch("/start_game_OUTRUN", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mute: getMuteStatus() })
@@ -54,8 +56,8 @@
                 });
         });
 
-        document.getElementById("start-random-game").addEventListener("click", () => {
-            fetch("/start_random_game", {
+        document.getElementById("start-game-RANDOM").addEventListener("click", () => {
+            fetch("/start_game_RANDOM", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mute: getMuteStatus() })
@@ -67,8 +69,8 @@
                 });
         });
 
-        document.getElementById("end-random-game").addEventListener("click", () => {
-            fetch("/end_random_game", { method: "POST" })
+        document.getElementById("end-game-RANDOM").addEventListener("click", () => {
+            fetch("/end_game_RANDOM", { method: "POST" })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data.message);

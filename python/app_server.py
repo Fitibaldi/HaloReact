@@ -28,13 +28,13 @@ def home():
     return render_template("index.html")
 
 # Flask Route to Start the Game
-@app.route("/start_game", methods=["POST"])
-def start_game():
+@app.route("/start_game_OUTRUN", methods=["POST"])
+def start_game_OUTRUN():
     global game_result
     with result_lock:
         game_result = None  # Reset game result when the game starts
     data = request.get_json()
-    mute_status = data.get("mute", "MUTE")
+    mute_status = data.get("mute", "MUTED")
     client.publish(MQTT_TOPIC_STATUS, f"START|OUTRUN|{mute_status}")
     return jsonify({"message": "Game started!"}), 200
 
@@ -48,19 +48,19 @@ def get_timer():
     return jsonify({"time": "Timer running..."}), 200
 
 # Flask Route to Start the Randomize Me! Game
-@app.route("/start_random_game", methods=["POST"])
-def start_random_game():
+@app.route("/start_game_RANDOM", methods=["POST"])
+def start_game_RANDOM():
     global game_result
     with result_lock:
         game_result = None  # Reset game result when starting a new game
     data = request.get_json()
-    mute_status = data.get("mute", "MUTE")
+    mute_status = data.get("mute", "MUTED")
     client.publish(MQTT_TOPIC_STATUS, f"START|RANDOM|{mute_status}")
     return jsonify({"message": "Randomize Me! game started"}), 200
 
 # Flask Route to End the Randomize Me! Game
-@app.route("/end_random_game", methods=["POST"])
-def end_random_game():
+@app.route("/end_game_RANDOM", methods=["POST"])
+def end_game_RANDOM():
     client.publish(MQTT_TOPIC_STATUS, "STOP|RANDOM")
     return jsonify({"message": "Randomize Me! game ended"}), 200
 

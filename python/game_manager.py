@@ -30,7 +30,7 @@ def determine_action(status_message):
         return add_node(parts[1])
         
     elif command == "START" and parts[1] == "OUTRUN":
-        return start_game_OUTRUN()
+        return start_game_OUTRUN(parts[2])
         
     elif command == "STAT" and game_name == "OUTRUN":
         print("In game action")
@@ -54,10 +54,10 @@ def determine_action(status_message):
         return ""
 
     elif command == "START" and parts[1] == "RANDOM":
-        return start_random_game()
+        return start_game_RANDOM(parts[2])
 
     elif command == "STOP" and parts[1] == "RANDOM":
-        return stop_random_game()
+        return stop_game_RANDOM()
 
     elif command == "STAT" and game_name == 'RANDOM':
         node_id = parts[1]
@@ -83,7 +83,7 @@ def determine_action(status_message):
     return f"ERR|unknown exception for message {status_message}"
 
 # Function to start a game
-def start_game_OUTRUN():
+def start_game_OUTRUN(muted):
     global active_nodes, game_name
     active_nodes = {node["id"] for node in nodes}
     
@@ -98,7 +98,7 @@ def start_game_OUTRUN():
     return message.strip()
 
 # Function to handle the start of the Randomize Me! game
-def start_random_game():
+def start_game_RANDOM(muted):
     global current_blinking_pod, game_name
     
     game_name = 'RANDOM'
@@ -107,7 +107,7 @@ def start_random_game():
     return f"NSTAT|{current_blinking_pod}|#00FF00|playStartSignal"
 
 # Function to handle the stop of the Randomize Me! game
-def stop_random_game():
+def stop_game_RANDOM():
     global  current_blinking_pod, game_name
     
     game_name = None
