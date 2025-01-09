@@ -37,6 +37,7 @@
 
     <section class="game" id="outrun-game">
         <div class="game-banner" style="background-image: url('game_outrun.png');">
+			<div class="blurred-background"></div>
             <h1>Outrun Yourself!</h1>
             <p>All the pods start with different colors. Turn them off as fast as you can!</p>
             <button id="start-OUTRUN">Start Game</button>
@@ -46,6 +47,7 @@
 
     <section class="game" id="randomize-game">
         <div class="game-banner" style="background-image: url('game_randomize.png');">
+			<div class="blurred-background"></div>
 			<h1>Randomize Me!</h1>
 			<p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
 			<button id="start-game-RANDOM">Start Game</button>
@@ -55,6 +57,16 @@
     </section>
 
     <script>
+		// Find all game-banner elements
+		const gameBanners = document.querySelectorAll('.game-banner');
+
+		gameBanners.forEach((banner) => {
+			const backgroundImage = banner.style.backgroundImage; // Get background-image from inline style
+			const blurredBackground = banner.querySelector('.blurred-background');
+			blurredBackground.style.backgroundImage = backgroundImage; // Apply it to the blurred layer
+		});
+	</script>
+	<script>
         function getMuteStatus() {
             return document.getElementById("mute-toggle").checked ? "MUTED" : "UNMUTED";
         }
@@ -103,23 +115,23 @@
 
         setInterval(updateTimer, 1000); // Update timer every second
 
-    // Select the dropdown and the theme stylesheet link
-    const styleSelect = document.getElementById("style-select");
-    const themeStylesheet = document.getElementById("theme-stylesheet");
+		// Select the dropdown and the theme stylesheet link
+		const styleSelect = document.getElementById("style-select");
+		const themeStylesheet = document.getElementById("theme-stylesheet");
 
-    // Load the saved theme from localStorage if it exists
-    const savedTheme = localStorage.getItem("selectedTheme");
-    if (savedTheme) {
-        themeStylesheet.href = savedTheme;
-        styleSelect.value = savedTheme;
-    }
+		// Load the saved theme from localStorage if it exists
+		const savedTheme = localStorage.getItem("selectedTheme");
+		if (savedTheme) {
+			themeStylesheet.href = savedTheme;
+			styleSelect.value = savedTheme;
+		}
 
-    // Add an event listener to switch styles when the user selects a new theme
-    styleSelect.addEventListener("change", (event) => {
-        const selectedTheme = event.target.value;
-        themeStylesheet.href = selectedTheme;
-        localStorage.setItem("selectedTheme", selectedTheme); // Save the selected theme
-    });
+		// Add an event listener to switch styles when the user selects a new theme
+		styleSelect.addEventListener("change", (event) => {
+			const selectedTheme = event.target.value;
+			themeStylesheet.href = selectedTheme;
+			localStorage.setItem("selectedTheme", selectedTheme); // Save the selected theme
+		});
     </script>
 </body>
 </html>
