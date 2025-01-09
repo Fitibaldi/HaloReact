@@ -1,29 +1,23 @@
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #333;
-    background-image: url('hexagonal-pattern.svg');
-    background-size: 40px 40px;
-    color: #fff;
+    color: #e0e0e0;
 }
 
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px 5px;
-    background-color: #222;
+    padding: 10px 20px;
 }
 
 .banner {
-	max-width: 350px;
+    max-width: 350px;
 }
 
 .toggle {
     display: flex;
     align-items: center;
-    color: #fff;
 }
 
 .toggle input {
@@ -35,8 +29,6 @@ header {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-size: 16px;
-    color: #fff;
     cursor: pointer;
 }
 
@@ -49,7 +41,6 @@ header {
 .toggle-switch {
     width: 40px;
     height: 20px;
-    background-color: #555;
     border-radius: 20px;
     position: relative;
     transition: background-color 0.3s ease;
@@ -60,7 +51,6 @@ header {
     content: "";
     width: 18px;
     height: 18px;
-    background-color: #82123bff;
     border-radius: 50%;
     position: absolute;
     top: 1px;
@@ -68,65 +58,72 @@ header {
     transition: transform 0.3s ease;
 }
 
-/* Change switch color when checked */
-.toggle-label input:checked + .toggle-switch {
-    background-color: #c19393ff;
-}
-
-/* Move the slider to the right when checked */
-.toggle-label input:checked + .toggle-switch::before {
-    transform: translateX(20px);
-}
-
-
 .game {
     margin: 20px 0;
 }
 
 .game-banner {
+    position: relative;
     padding: 20px;
-    background-size: cover;
-    background-position: center;
     border-radius: 10px;
     text-align: center;
+    overflow: hidden;
+    background: none; /* Remove default background to use blurred layer */
+}
+
+/* Blurred background layer */
+.blurred-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(2px);
+    z-index: 1;
+    border-radius: inherit;
+}
+
+/* Ensure content is on top */
+.game-banner h1, 
+.game-banner p, 
+.game-banner button {
+    position: relative;
+    z-index: 1;
 }
 
 .container {
-  position: relative;
-  max-width: 800px; /* Maximum width */
-  margin: 0 auto; /* Center it */
+    position: relative;
+    max-width: 800px; /* Maximum width */
+    margin: 0 auto; /* Center it */
 }
 
 p {
-  bottom: 0; /* At the bottom. Use top:0 to append it to the top */
-  background: rgb(0, 0, 0); /* Fallback color */
-  background: rgba(0, 0, 0, 0.5); /* Black background with 0.5 opacity */
-  color: #f1f1f1; /* Grey text */
-  width: 100%; /* Full width */
-  padding: 20px; /* Some padding */
+    background: rgba(0, 0, 0, 0.5); /* Black background with 0.5 opacity */
+    color: #f1f1f1; /* Grey text */
+    width: 100%; /* Full width */
+    padding: 20px; /* Some padding */
+}
+
+select {
+    background: rgba(0, 0, 0, 0.5); /* Black background with 0.5 opacity */
+    color: #f1f1f1; /* Grey text */
+    padding: 5px; /* Some padding */
 }
 
 h1 {
-  bottom: 0; /* At the bottom. Use top:0 to append it to the top */
-  background: rgb(20, 20, 20); /* Fallback color */
-  background: rgba(20, 20, 20, 0.75); /* Black background with 0.5 opacity */
-  color: #c19393ff; /* Grey text */
-  width: 100%; /* Full width */
-  padding: 5px; /* Some padding */
+    background: rgba(20, 20, 20, 0.75); /* Black background with 0.75 opacity */
+    width: 100%; /* Full width */
+    padding: 5px; /* Some padding */
 }
 
 button {
     padding: 10px 20px;
     margin: 10px;
-    background-color: #444;
-    color: #fff;
     border: none;
     border-radius: 15px;
     cursor: pointer;
-}
-
-button:hover {
-    background-color: #555;
 }
 
 @media (max-width: 768px) {
