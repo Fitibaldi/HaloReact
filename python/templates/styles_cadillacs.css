@@ -1,0 +1,148 @@
+body {
+    font-family: 'Press Start 2P', cursive; /* Retro game font */
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    background-image: url('cadillacs-pattern.png');
+    background-size: 287px 162px;
+    color: #e0e0e0;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #0d0d0d;
+    border-bottom: 2px solid #00cc00; /* Green border */
+}
+
+.banner {
+    max-width: 350px;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    color: #e0e0e0;
+}
+
+.toggle input {
+    margin-right: 10px;
+}
+
+/* Container for the toggle */
+.toggle-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #e0e0e0;
+    cursor: pointer;
+}
+
+/* Hide the default checkbox */
+.toggle-label input[type="checkbox"] {
+    display: none;
+}
+
+/* The switch background */
+.toggle-switch {
+    width: 40px;
+    height: 20px;
+    background-color: #333;
+    border-radius: 20px;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+/* The round slider inside the switch */
+.toggle-switch::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    background-color: #00cc00; /* Green slider */
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.3s ease;
+}
+
+/* Change switch color when checked */
+.toggle-label input:checked + .toggle-switch {
+    background-color: #009900; /* Darker green */
+}
+
+/* Move the slider to the right when checked */
+.toggle-label input:checked + .toggle-switch::before {
+    transform: translateX(20px);
+}
+
+.game {
+    margin: 20px 0;
+}
+
+.game-banner {
+    padding: 20px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #00cc00; /* Green border */
+}
+
+.container {
+    position: relative;
+    max-width: 800px; /* Maximum width */
+    margin: 0 auto; /* Center it */
+}
+
+p {
+    bottom: 0; /* At the bottom. Use top:0 to append it to the top */
+    background: rgba(0, 0, 0, 0.7); /* Black background with 0.7 opacity */
+    color: #00B14D; /* Grey text */
+    width: 100%; /* Full width */
+    padding: 20px; /* Some padding */
+}
+
+select {
+    bottom: 0; /* At the bottom. Use top:0 to append it to the top */
+    background: rgba(0, 0, 0, 0.7); /* Black background with 0.7 opacity */
+    color: #e0e0e0; /* Grey text */
+    padding: 5px; /* Some padding */
+    font-family: 'Press Start 2P', cursive; /* Retro game font */
+}
+
+h1 {
+    bottom: 0; /* At the bottom. Use top:0 to append it to the top */
+    background: rgba(20, 20, 20, 0.75); /* Black background with 0.75 opacity */
+    color: #FE0000; /* Red text */
+    width: 100%; /* Full width */
+    padding: 5px; /* Some padding */
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #FF5D2C; /* Dark green */
+    color: #fff;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive; /* Retro game font */
+}
+
+button:hover {
+    background-color: #00cc00; /* Lighter green */
+}
+
+@media (max-width: 768px) {
+    .game-banner {
+        padding: 10px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
