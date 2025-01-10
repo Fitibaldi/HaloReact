@@ -3,8 +3,8 @@
 body {
     font-family: 'Press Start 2P', cursive; /* Retro game font */
     background-color: #1a1a1a;
-    background-image: url('cadillacs-pattern.png');
-    background-size: 287px 162px;
+    background-image: url('/static/img/cadillacs-pattern.png');
+    background-size: 100%;
 }
 
 header {

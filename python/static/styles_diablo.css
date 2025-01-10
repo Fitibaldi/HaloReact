@@ -3,8 +3,8 @@
 body {
     font-family: 'MedievalSharp', serif; /* Gothic medieval font */
     background-color: #1a0d0d;
-    background-image: url('diablo-pattern.png'); /* Add a dark gothic pattern */
-    background-size: cover;
+    background-image: url('/static/img/diablo-pattern.png'); /* Add a dark gothic pattern */
+    background-size: 200px 179px;
     background-attachment: fixed;
     color: #af0000ff;
     text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);

@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HaloReact</title>
-    <link id="theme-stylesheet" rel="stylesheet" href="styles_classic.css"> <!-- Default stylesheet -->
+    <link id="theme-stylesheet" rel="stylesheet" href="{{ url_for('static', filename='styles_classic.css') }}"> <!-- Default stylesheet -->
 	<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <img src="banner.png" alt="HaloReact Banner" class="banner">
+        <img src="{{ url_for('static', filename='img/banner.png') }}" alt="HaloReact Banner" class="banner">
     </header>
 	
 	<section class="style-switcher">
@@ -23,30 +24,32 @@
 			<option value="styles_wolfenstein.css">Wolfenstein</option>
 			<option value="styles_cadillacs.css">Cadillacs and Dinosaurs</option>
 			<option value="styles_diablo.css">Diablo</option>
+			<option value="styles_squid.css">Squid Games</option>
 		</select>
 	</section>
 
-	<section class="toggle" id="muterator">
-		<label class="toggle-label" for="mute-toggle">
-			<input type="checkbox" id="mute-toggle" checked>
-			<span class="toggle-switch"></span>
-			Mute Game
-		</label>
-	</section>
-
-
+	<div>
+		<section class="toggle" id="muterator">
+			<label class="toggle-label" for="mute-toggle">
+				<input type="checkbox" id="mute-toggle" checked>
+				<span class="toggle-switch"></span>
+				Mute Game
+			</label>
+		</section>
+		<p id="timer"></p>
+	</div>
+	
     <section class="game" id="outrun-game">
-        <div class="game-banner" style="background-image: url('game_outrun.png');">
+        <div class="game-banner" style="background-image: url('{{ url_for('static', filename='img/game_outrun.png') }}">
 			<div class="blurred-background"></div>
             <h1>Outrun Yourself!</h1>
             <p>All the pods start with different colors. Turn them off as fast as you can!</p>
             <button id="start-OUTRUN">Start Game</button>
-            <p id="timer"></p>
         </div>
     </section>
 
     <section class="game" id="randomize-game">
-        <div class="game-banner" style="background-image: url('game_randomize.png');">
+        <div class="game-banner" style="background-image: url('{{ url_for('static', filename='img/game_randomize.png') }}">
 			<div class="blurred-background"></div>
 			<h1>Randomize Me!</h1>
 			<p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
@@ -122,14 +125,14 @@
 		// Load the saved theme from localStorage if it exists
 		const savedTheme = localStorage.getItem("selectedTheme");
 		if (savedTheme) {
-			themeStylesheet.href = savedTheme;
+			themeStylesheet.href = `/static/${savedTheme}`;
 			styleSelect.value = savedTheme;
 		}
 
 		// Add an event listener to switch styles when the user selects a new theme
 		styleSelect.addEventListener("change", (event) => {
 			const selectedTheme = event.target.value;
-			themeStylesheet.href = selectedTheme;
+			themeStylesheet.href = `/static/${selectedTheme}`;
 			localStorage.setItem("selectedTheme", selectedTheme); // Save the selected theme
 		});
     </script>

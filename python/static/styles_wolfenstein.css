@@ -4,8 +4,8 @@
 body {
     font-family: 'UnifrakturMaguntia', sans-serif; /* Use a vintage-style sans-serif font */
     background-color: #1a1a1a;
-    background-image: url('wolfenstein-pattern.png'); /* Replace with a gritty, metallic pattern */
-    background-size: 50px 50px;
+    background-image: url('/static/img/wolfenstein-pattern.png'); /* Replace with a gritty, metallic pattern */
+    background-size: 100%;
     color: #d4d4d4;
 }
 

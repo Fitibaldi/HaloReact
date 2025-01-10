@@ -2,6 +2,9 @@ import paho.mqtt.client as mqtt
 import time
 import random
 from threading import Timer
+from threading import Lock
+import json
+import os
 
 # MQTT broker details
 BROKER = "localhost"  # Change to your broker's IP if not local
@@ -18,6 +21,15 @@ game_timer_end = None
 active_nodes = set()
 game_name = None
 current_blinking_pod = None
+
+result_lock = Lock()
+data_file = "game_statistics.json"
+
+# Initialize the file if it doesn't exist
+if not os.path.exists(data_file):
+    with open(data_file, "w") as file:
+        json.dump({}, file)
+
 
 # Algorithm function
 def determine_action(status_message):
@@ -48,7 +60,8 @@ def determine_action(status_message):
                 game_timer_end = time.time()
                 duration = game_timer_end - game_timer_start
                 print(f"Game finished in {duration:.2f} seconds!")
-                action += f"\nENDGAME|{duration:.2f} seconds!"
+                action += f"\nENDGAME|OUTRUN|{duration:.2f} seconds!"
+                save_game_statistics("OUTRUN", duration)
             
             return action
         return ""
@@ -99,21 +112,27 @@ def start_game_OUTRUN(muted):
 
 # Function to handle the start of the Randomize Me! game
 def start_game_RANDOM(muted):
-    global current_blinking_pod, game_name
+    global current_blinking_pod, game_name, game_timer_start
     
     game_name = 'RANDOM'
+    game_timer_start = time.time()
     
     current_blinking_pod = random.choice(nodes)["id"]  # Pick a random node
     return f"NSTAT|{current_blinking_pod}|#00FF00|playStartSignal"
 
 # Function to handle the stop of the Randomize Me! game
 def stop_game_RANDOM():
-    global  current_blinking_pod, game_name
+    global current_blinking_pod, game_name, game_timer_start, game_timer_end
     
     game_name = None
     
+    game_timer_end = time.time()
+    duration = game_timer_end - game_timer_start
+    print(f"Game finished in {duration:.2f} seconds!")
+    
     current_blinking_pod = None
-    return "\n".join([f"NSTAT|{node['id']}|#000000|playDeviceDisconnect" for node in nodes])
+    save_game_statistics("RANDOM", duration)
+    return f"\nENDGAME|RANDOM|{duration:.2f} seconds!\n".join([f"NSTAT|{node['id']}|#000000|playDeviceDisconnect" for node in nodes])
 
 # Function to add a new node dynamically
 def add_node(node_id):
@@ -125,6 +144,26 @@ def add_node(node_id):
     nodes.append({"id": node_id, "status": "active"})
     print(f"Added new node: {node_id}")
     return f"HELLO|{node_id}|DON'T PANIC"
+
+def save_game_statistics(game_name, time_played):
+    """Save game statistics to the JSON file."""
+    with result_lock:
+        try:
+            # Load existing data
+            with open(data_file, "r") as file:
+                data = json.load(file)
+            
+            # Add new entry for the game
+            if game_name in data:
+                data[game_name].append(time_played)
+            else:
+                data[game_name] = [time_played]
+            
+            # Write updated data back to the file
+            with open(data_file, "w") as file:
+                json.dump(data, file, indent=4)
+        except Exception as e:
+            print(f"Error saving game statistics: {e}")
 
 # Callback when a message is received
 def on_message(client, userdata, msg):

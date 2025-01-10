@@ -13,7 +13,7 @@ const char* ssid = "Ognianovi.Guest";
 const char* password = "Ognianovi1234";
 
 // MQTT broker details
-const char* mqtt_server = "192.168.0.212";
+const char* mqtt_server = "192.168.0.200";
 const int mqtt_port = 1883;
 
 // MQTT topics

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import paho.mqtt.client as mqtt
 import threading
 
@@ -20,7 +20,7 @@ def on_message(client, userdata, msg):
         payload = msg.payload.decode()
         if payload.startswith("ENDGAME"):
             with result_lock:
-                game_result = payload.split("|")[1]  # Extract the time (e.g., "4:42")
+                game_result = payload.split("|")[2]  # Extract the time (e.g., "4:42")
 
 # Flask Route for Home Page
 @app.route("/")

@@ -90,6 +90,37 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 	- sleep 8
 	- mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|#121212"
 
+### Setting a Static IP for `wlan0` Using `nmcli`
+
+Follow these steps to set a static IP on an existing Wi-Fi connection using `nmcli`:
+
+#### Steps
+
+1. **Find the existing connection name**:
+   ```bash
+   nmcli con show
+   ```
+   
+This command lists all network connections. Identify the connection associated with wlan0. For example, if the connection name is WIFI_HOME, proceed with the following steps.
+
+2. **Modify the connection to use a static IP**:
+	```bash
+	sudo nmcli con modify WIFI_HOME ipv4.addresses 192.168.4.200/24
+	sudo nmcli con modify WIFI_HOME ipv4.gateway 192.168.4.1
+	sudo nmcli con modify WIFI_HOME ipv4.dns 192.168.4.1
+	sudo nmcli con modify WIFI_HOME ipv4.method manual
+	```
+	
+3. **Restart the connection to apply the changes**:
+	```bash
+	sudo nmcli con down WIFI_HOME
+	sudo nmcli con up WIFI_HOME
+	```
+	
+4. **Verify the IP address**:
+	```bash
+	ip addr show wlan0
+	```
 
 ### Step 2: Program the Pods
 1. Write firmware for the ESP32 using Arduino IDE or PlatformIO.
