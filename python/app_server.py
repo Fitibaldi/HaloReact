@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 import paho.mqtt.client as mqtt
 import threading
+import json
+import os
 
 app = Flask(__name__)
 
@@ -8,6 +10,9 @@ app = Flask(__name__)
 MQTT_BROKER = "localhost"
 MQTT_TOPIC_ACTION = "pod_action"
 MQTT_TOPIC_STATUS = "pod_status"
+
+# Path to the game statistics file
+STATS_FILE_PATH = 'static/game_statistics.json'
 
 # Global variable to store the game result
 game_result = None
@@ -67,6 +72,16 @@ def end_game_RANDOM():
 @app.route("/statistics")
 def statistics():
     return render_template("statistics.html")
+    
+@app.route("/reset_statistics", methods=["POST"])
+def reset_statistics():
+    try:
+        # Overwrite the file with an empty JSON object
+        with open(STATS_FILE_PATH, 'w') as f:
+            json.dump({}, f)
+        return jsonify({"message": "Statistics have been reset successfully."}), 200
+    except Exception as e:
+        return jsonify({"message": f"Error resetting statistics: {str(e)}"}), 500
 
 # MQTT Client Setup
 client = mqtt.Client()

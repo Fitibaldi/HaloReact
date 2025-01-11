@@ -6,11 +6,17 @@
     <title>Game Statistics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link id="theme-stylesheet" rel="stylesheet" href="{{ url_for('static', filename='styles_classic.css') }}"> <!-- Default stylesheet -->
+	<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <h1>Game Statistics</h1>
         <button onclick="goBack()">Back to Home</button>
+		<button id="reset-button">Reset Statistics</button>
     </header>
     
     <section class="statistics">
@@ -50,13 +56,15 @@
                 const maxTime = Math.max(...times).toFixed(2);
                 const totalTime = times.reduce((sum, time) => sum + time, 0).toFixed(2);
                 const avgTime = (totalTime / times.length).toFixed(2);
+				const playedGames = times.length;
 
                 return `
                     <h2>${game}</h2>
-                    <p>Min Time: ${minTime} s</p>
-                    <p>Max Time: ${maxTime} s</p>
-                    <p>Average Time: ${avgTime} s</p>
-                    <p>Total Time: ${totalTime} s</p>
+                    <p class="game-metrics">Min Time: ${minTime} s</p>
+                    <p class="game-metrics">Max Time: ${maxTime} s</p>
+                    <p class="game-metrics">Average Time: ${avgTime} s</p>
+                    <p class="game-metrics">Total Time: ${totalTime} s</p>
+					<p class="game-metrics">Games played: ${playedGames}</p>
                 `;
             }).join('');
 
@@ -109,6 +117,21 @@
             }
             return color;
         }
+		
+		const resetButton = document.getElementById('reset-button');
+
+		resetButton.addEventListener('click', () => {
+			if (confirm("Are you sure you want to reset all statistics?")) {
+				fetch('/reset_statistics', { method: 'POST' })
+					.then(response => response.json())
+					.then(data => {
+						alert(data.message);
+						location.reload(); // Reload the page to refresh the graph
+					})
+					.catch(error => console.error('Error resetting statistics:', error));
+			}
+		});
+
 
         // Back button functionality
         function goBack() {

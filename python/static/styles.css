@@ -71,6 +71,10 @@ header {
     background: none; /* Remove default background to use blurred layer */
 }
 
+.game-metrics {
+	padding: 0px;
+}
+
 /* Blurred background layer */
 .blurred-background {
     position: absolute;
