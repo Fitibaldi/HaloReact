@@ -21,6 +21,12 @@
     </section>
 
     <script>
+		// Load the saved theme from localStorage
+		const savedTheme = localStorage.getItem("selectedTheme");
+		if (savedTheme) {
+			document.getElementById("theme-stylesheet").href = `/static/${savedTheme}`;
+		}
+		
         // Fetch the game statistics data from the JSON file
         fetch("{{ url_for('static', filename='game_statistics.json') }}")
             .then(response => response.json())
