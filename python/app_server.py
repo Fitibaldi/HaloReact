@@ -64,6 +64,10 @@ def end_game_RANDOM():
     client.publish(MQTT_TOPIC_STATUS, "STOP|RANDOM")
     return jsonify({"message": "Randomize Me! game ended"}), 200
 
+@app.route("/statistics")
+def statistics():
+    return render_template("statistics.html")
+
 # MQTT Client Setup
 client = mqtt.Client()
 client.on_message = on_message

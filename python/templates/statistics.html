@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link id="theme-stylesheet" rel="stylesheet" href="{{ url_for('static', filename='styles_classic.css') }}"> <!-- Default stylesheet -->
+</head>
+<body>
+    <header>
+        <h1>Game Statistics</h1>
+        <button onclick="goBack()">Back to Home</button>
+    </header>
+    
+    <section class="statistics">
+		<div class="chart-container">
+			<canvas id="gameStatsChart" width="400" height="200"></canvas>
+		<div>
+		<div id="gameMetrics"></div>
+    </section>
+
+    <script>
+        // Fetch the game statistics data from the JSON file
+        fetch("{{ url_for('static', filename='game_statistics.json') }}")
+            .then(response => response.json())
+            .then(data => {
+                displayStatistics(data);
+            })
+            .catch(error => console.error('Error loading statistics:', error));
+
+        // Function to display statistics
+        function displayStatistics(data) {
+            const gameNames = Object.keys(data); // Game names
+            const gameTimes = Object.values(data); // Arrays of times for each game
+			const maxGames = Math.max(...gameNames.map(game => data[game].length));  // Find max number of sessions
+			const gameIndices = Array.from({ length: maxGames }, (_, i) => i + 1);  // X-axis: Game session numbers
+
+
+            // Metrics for each game
+            const metricsHTML = gameNames.map((game, index) => {
+                const times = gameTimes[index];
+                const minTime = Math.min(...times).toFixed(2);
+                const maxTime = Math.max(...times).toFixed(2);
+                const totalTime = times.reduce((sum, time) => sum + time, 0).toFixed(2);
+                const avgTime = (totalTime / times.length).toFixed(2);
+
+                return `
+                    <h2>${game}</h2>
+                    <p>Min Time: ${minTime} s</p>
+                    <p>Max Time: ${maxTime} s</p>
+                    <p>Average Time: ${avgTime} s</p>
+                    <p>Total Time: ${totalTime} s</p>
+                `;
+            }).join('');
+
+            document.getElementById('gameMetrics').innerHTML = metricsHTML;
+
+            // Line chart for game times
+
+			const datasets = gameNames.map(game => ({
+				label: game,
+				data: data[game],  // Y-axis: Time played
+				borderColor: getRandomColor(),
+				borderWidth: 2,
+				fill: false
+			}));
+
+			const ctx = document.getElementById('gameStatsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: gameIndices, // X-axis: Session numbers
+                    datasets: datasets   // Y-axis: Time data
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Games'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to generate a random color for each line
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // Back button functionality
+        function goBack() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

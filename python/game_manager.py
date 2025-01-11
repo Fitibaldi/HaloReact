@@ -23,7 +23,7 @@ game_name = None
 current_blinking_pod = None
 
 result_lock = Lock()
-data_file = "game_statistics.json"
+data_file = "static/game_statistics.json"
 
 # Initialize the file if it doesn't exist
 if not os.path.exists(data_file):
