@@ -120,8 +120,11 @@ def start_game_RANDOM():
     game_name = 'RANDOM'
     game_timer_start = time.time()
     
-    current_blinking_pod = random.choice(nodes)["id"]  # Pick a random node
-    return f"NSTAT|{current_blinking_pod}|#00FF00|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
+    if len(nodes) > 0:
+        current_blinking_pod = random.choice(nodes)["id"]  # Pick a random node
+        return f"NSTAT|{current_blinking_pod}|#00FF00|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
+        
+    return ""
 
 # Function to handle the stop of the Randomize Me! game
 def stop_game_RANDOM():

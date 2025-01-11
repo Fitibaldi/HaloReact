@@ -65,7 +65,9 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 ## Getting Started
 
 ### Step 1: Set Up the Server
-1. Make it to be AP (TBA)
+1. Make ESP-C3 to be AP (TBA)
+1.1. Configure Orange Pi Zero to connect to HaloReact Wifi network
+	- nmtui
 2. Install Mosquitto
 	- apt install mosquitto mosquitto-client
 2.1. Start Mosquitto
