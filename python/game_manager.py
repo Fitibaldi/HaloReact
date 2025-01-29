@@ -58,7 +58,7 @@ def determine_action(status_message):
             if len(active_nodes) + 1 == len(nodes):  # First node clicked
                 game_timer_start = time.time()
                 print("Timer started!")
-            elif not active_nodes:  # Last node clicked
+            if not active_nodes:  # Last node clicked
                 game_timer_end = time.time()
                 duration = game_timer_end - game_timer_start
                 print(f"Game finished in {duration:.2f} seconds!")
