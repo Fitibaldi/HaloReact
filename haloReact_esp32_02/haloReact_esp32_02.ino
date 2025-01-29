@@ -14,7 +14,7 @@ const char* password = "Ognianovi1234";
 */
 
 // MQTT broker details
-const char* mqtt_server = "192.168.0.200";
+const char* mqtt_server = "192.168.4.200";
 const int mqtt_port = 1883;
 
 // MQTT topics
@@ -34,7 +34,7 @@ String unique_id = "ESP32_" + String((uint16_t)(chipId >> 32), HEX) + String((ui
 #define BUTTON_PIN 21      // ESP32 pin GPIO21, which connected to button
 #define BUZZ_PIN 5         // ESP32 pin GPIO5, which connected to the buzzer
 #define LED_PIN_RGB 18     // ESP32 pin GPIO18, which connected to the RGB LED
-#define NUM_LEDS 12        // Number of LEDs
+#define NUM_LEDS 5        // Number of LEDs
 #define PIEZO_PIN 36       // ESP32 ADC pin on VP
 const int piezo_threshold = 40;
 
@@ -44,6 +44,7 @@ CRGB leds[NUM_LEDS];
 int last_piezo_state = 0;
 int last_button_state = 0;
 String current_color_hex = "#000000";
+int current_led_number = 0;
 
 void setup() {
   delay(2000);  // Wait 2 seconds before starting serial communication
@@ -53,12 +54,15 @@ void setup() {
   // initialize the button pin as an pull-up input:
   // the pull-up input pin will be HIGH when the button is open and LOW when the button is pressed.
   pinMode(BUTTON_PIN, INPUT_PULLUP); 
-
   pinMode(PIEZO_PIN, INPUT); // Configure the piezo pin as input
 
+  current_led_number = NUM_LEDS;
+
   // Setup The LED
-  FastLED.addLeds<NEOPIXEL, LED_PIN_RGB>(leds, NUM_LEDS);  // GRB ordering is assumed
+  FastLED.addLeds<WS2812B, LED_PIN_RGB>(leds, NUM_LEDS);  // GRB ordering is assumed
   FastLED.setBrightness(30);
+  FastLED.clear();
+  FastLED.show();
 
   setup_wifi();
 
@@ -198,6 +202,8 @@ void reconnect() {
       delay(5000);
     }
   }
+  playMessageNudge();
+  lightRGB(hexToCRGB("#000050"), 10);
 }
 
 void lightRGB(CRGB color, int brightness) {
