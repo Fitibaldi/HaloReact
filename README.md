@@ -137,12 +137,12 @@ This command lists all network connections. Identify the connection associated w
 
 #### Make the server to automatically start on Orange/Raspberry start
 ##### APP Server Configuration
-Create a service
+1. **Create a service**:
 	```bash
 	sudo nano /etc/systemd/system/app_server.service
 	```
 	
-Add the following content:
+2. **Add the following content**:
 	```ini
 	[Unit]
 	Description=Flask App Server for the HaloReact Game Webpage
@@ -161,12 +161,12 @@ Add the following content:
 	```
 
 ##### Game Manager Configuration
-Create a service	
+1. **Create a service**:
 	```bash
 	sudo nano /etc/systemd/system/game_manager.service
 	```
 	
-Add the following content:
+2. **Add the following content**:
 	```ini
 	[Unit]
 	Description=Game Manager for MQTT and pods
@@ -182,7 +182,9 @@ Add the following content:
 	[Install]
 	WantedBy=multi-user.target
 	```
-#### Enable, Start and Status of the Services
+	
+#### Enable, Start and Status of the Services:
+- **Commands**:
 	```bash
 	sudo systemctl daemon-reload
 	sudo systemctl enable app_server.service
