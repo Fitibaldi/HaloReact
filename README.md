@@ -105,11 +105,9 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 	- sleep 8
 	- mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|#121212"
 
-### Setting a Static IP for `wlan0` Using `nmcli`
+#### Setting a Static IP for `wlan0` Using `nmcli`
 
 Follow these steps to set a static IP on an existing Wi-Fi connection using `nmcli`:
-
-#### Steps
 
 1. **Find the existing connection name**:
    ```bash
@@ -135,6 +133,66 @@ This command lists all network connections. Identify the connection associated w
 4. **Verify the IP address**:
 	```bash
 	ip addr show wlan0
+	```
+
+#### Make the server to automatically start on Orange/Raspberry start
+##### APP Server Configuration
+Create a service
+	```bash
+	sudo nano /etc/systemd/system/app_server.service
+	```
+	
+Add the following content:
+	```ini
+	[Unit]
+	Description=Flask App Server for the HaloReact Game Webpage
+	After=network.target
+
+	[Service]
+	# User=haloreact
+	WorkingDirectory=/home/haloreact/HaloReact
+	ExecStart=/home/haloreact/myenv/bin/python3 app_server.py
+	Restart=always
+	Environment=FLASK_ENV=production
+	Environment=PYTHONUNBUFFERED=1
+
+	[Install]
+	WantedBy=multi-user.target
+	```
+
+##### Game Manager Configuration
+Create a service	
+	```bash
+	sudo nano /etc/systemd/system/game_manager.service
+	```
+	
+Add the following content:
+	```ini
+	[Unit]
+	Description=Game Manager for MQTT and pods
+	After=network.target
+
+	[Service]
+	User=haloreact
+	WorkingDirectory=/home/haloreact/HaloReact
+	ExecStart=/home/haloreact/myenv/bin/python3 game_manager.py
+	Restart=always
+	Environment=PYTHONUNBUFFERED=1
+
+	[Install]
+	WantedBy=multi-user.target
+	```
+#### Enable, Start and Status of the Services
+	```bash
+	sudo systemctl daemon-reload
+	sudo systemctl enable app_server.service
+	sudo systemctl enable game_manager.service
+	sudo systemctl start app_server.service
+	sudo systemctl start game_manager.service
+	sudo systemctl status app_server.service
+	sudo systemctl status game_manager.service
+	sudo journalctl -u app_server.service
+	sudo journalctl -u game_manager.service
 	```
 
 ### Step 2: Program the Pods
