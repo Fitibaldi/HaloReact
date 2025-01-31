@@ -66,136 +66,160 @@ HaloReact is a DIY project designed to create interactive light pods for trainin
 
 ### Step 1: Set Up the Server
 1. Make ESP-C3 to be AP (TBA)
-1.1. Configure Orange Pi Zero to connect to HaloReact Wifi network
-	- nmtui
-2. Install Mosquitto
-	- apt install mosquitto mosquitto-client
-2.1. Start Mosquitto
-	- sudo systemctl start mosquitto
-2.2. Configure Mosquitto to listen on IP, not only on localhost
-	- netstat -tlnp | grep 1883
-	- Open the configuration file:
-		- sudo nano /etc/mosquitto/mosquitto.conf
-	- Add or modify the following lines:
-		- listener 1883
-		- allow_anonymous true
-	- Restart the broker:
-		- sudo systemctl restart mosquitto
+
+1.1. Configure Orange Pi Zero to connect to HaloReact Wifi network:
+```bash
+nmtui
+```
+2. Install Mosquitto:
+```bash
+apt install mosquitto mosquitto-client
+```
+2.1. Start Mosquitto:
+```bash
+sudo systemctl start mosquitto
+```
+2.2. Configure Mosquitto to listen on IP, not only on localhost:
+```bash
+netstat -tlnp | grep 1883
+sudo nano /etc/mosquitto/mosquitto.conf
+```
+- Add or modify the following lines:
+```bash
+listener 1883
+allow_anonymous true
+```
+- Restart the broker:
+```bash
+sudo systemctl restart mosquitto
+```
 3. Setup MQTT topics
-	- mosquitto_sub -h localhost -t pod_status
-	- mosquitto_sub -h localhost -t pod_action
-	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
-	- mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|Red"
+```bash
+mosquitto_sub -h localhost -t pod_status
+mosquitto_sub -h localhost -t pod_action
+mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
+mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|Red"
+```
 4. Install python
-	- apt install python3 python3-pip
+```bash
+apt install python3 python3-pip
+```
 5. Create separate environment for python and activate it
-	- python3 -m venv myenv
-	- source myenv/bin/activate
+```bash
+python3 -m venv myenv
+source myenv/bin/activate
+```
 6. Install Flask App Server
-	- pip3 install flask
-	- pip install paho-mqtt
+```bash
+pip3 install flask
+pip install paho-mqtt
+```
 7. Run the script
-	- python3 simple_repeater.py
-	- python3 game_manager.py
+```bash
+python3 simple_repeater.py
+python3 game_manager.py
+```
 8. Play a fake game
-	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
-	- mosquitto_pub -h localhost -t pod_status -m "HELLO|N2"
-	- mosquitto_pub -h localhost -t pod_status -m "START|OUTRUN"
-	- mosquitto_pub -h localhost -t pod_status -m "STAT|N2|HIGH|#121212"
-	- sleep 8
-	- mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|#121212"
+```bash
+mosquitto_pub -h localhost -t pod_status -m "HELLO|N1"
+mosquitto_pub -h localhost -t pod_status -m "HELLO|N2"
+mosquitto_pub -h localhost -t pod_status -m "START|OUTRUN"
+mosquitto_pub -h localhost -t pod_status -m "STAT|N2|HIGH|#121212"
+sleep 8
+mosquitto_pub -h localhost -t pod_status -m "STAT|N1|HIGH|#121212"
+```
 
 #### Setting a Static IP for `wlan0` Using `nmcli`
 
 Follow these steps to set a static IP on an existing Wi-Fi connection using `nmcli`:
 
 1. **Find the existing connection name**:
-   ```bash
-   nmcli con show
-   ```
+```bash
+nmcli con show
+```
    
 This command lists all network connections. Identify the connection associated with wlan0. For example, if the connection name is WIFI_HOME, proceed with the following steps.
 
 2. **Modify the connection to use a static IP**:
-	```bash
-	sudo nmcli con modify WIFI_HOME ipv4.addresses 192.168.4.200/24
-	sudo nmcli con modify WIFI_HOME ipv4.gateway 192.168.4.1
-	sudo nmcli con modify WIFI_HOME ipv4.dns 192.168.4.1
-	sudo nmcli con modify WIFI_HOME ipv4.method manual
-	```
+```bash
+sudo nmcli con modify WIFI_HOME ipv4.addresses 192.168.4.200/24
+sudo nmcli con modify WIFI_HOME ipv4.gateway 192.168.4.1
+sudo nmcli con modify WIFI_HOME ipv4.dns 192.168.4.1
+sudo nmcli con modify WIFI_HOME ipv4.method manual
+```
 	
 3. **Restart the connection to apply the changes**:
-	```bash
-	sudo nmcli con down WIFI_HOME
-	sudo nmcli con up WIFI_HOME
-	```
+```bash
+sudo nmcli con down WIFI_HOME
+sudo nmcli con up WIFI_HOME
+```
 	
 4. **Verify the IP address**:
-	```bash
-	ip addr show wlan0
-	```
+```bash
+ip addr show wlan0
+```
 
 #### Make the server to automatically start on Orange/Raspberry start
 ##### APP Server Configuration
 1. **Create a service**:
-	```bash
-	sudo nano /etc/systemd/system/app_server.service
-	```
+```bash
+sudo nano /etc/systemd/system/app_server.service
+```
 	
 2. **Add the following content**:
-	```ini
-	[Unit]
-	Description=Flask App Server for the HaloReact Game Webpage
-	After=network.target
+```ini
+[Unit]
+Description=Flask App Server for the HaloReact Game Webpage
+After=network.target
 
-	[Service]
-	# User=haloreact
-	WorkingDirectory=/home/haloreact/HaloReact
-	ExecStart=/home/haloreact/myenv/bin/python3 app_server.py
-	Restart=always
-	Environment=FLASK_ENV=production
-	Environment=PYTHONUNBUFFERED=1
+[Service]
+# User=haloreact
+WorkingDirectory=/home/haloreact/HaloReact
+ExecStart=/home/haloreact/myenv/bin/python3 app_server.py
+Restart=always
+Environment=FLASK_ENV=production
+Environment=PYTHONUNBUFFERED=1
 
-	[Install]
-	WantedBy=multi-user.target
-	```
+[Install]
+WantedBy=multi-user.target
+```
 
 ##### Game Manager Configuration
 1. **Create a service**:
-	```bash
-	sudo nano /etc/systemd/system/game_manager.service
-	```
-	
+```bash
+sudo nano /etc/systemd/system/game_manager.service
+```
+
 2. **Add the following content**:
-	```ini
-	[Unit]
-	Description=Game Manager for MQTT and pods
-	After=network.target
+```ini
+[Unit]
+Description=Game Manager for MQTT and pods
+After=network.target
 
-	[Service]
-	User=haloreact
-	WorkingDirectory=/home/haloreact/HaloReact
-	ExecStart=/home/haloreact/myenv/bin/python3 game_manager.py
-	Restart=always
-	Environment=PYTHONUNBUFFERED=1
+[Service]
+User=haloreact
+WorkingDirectory=/home/haloreact/HaloReact
+ExecStart=/home/haloreact/myenv/bin/python3 game_manager.py
+Restart=always
+Environment=PYTHONUNBUFFERED=1
 
-	[Install]
-	WantedBy=multi-user.target
-	```
-	
+[Install]
+WantedBy=multi-user.target
+```
+
 #### Enable, Start and Status of the Services:
 - **Commands**:
-	```bash
-	sudo systemctl daemon-reload
-	sudo systemctl enable app_server.service
-	sudo systemctl enable game_manager.service
-	sudo systemctl start app_server.service
-	sudo systemctl start game_manager.service
-	sudo systemctl status app_server.service
-	sudo systemctl status game_manager.service
-	sudo journalctl -u app_server.service
-	sudo journalctl -u game_manager.service
-	```
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable app_server.service
+sudo systemctl enable game_manager.service
+sudo systemctl start app_server.service
+sudo systemctl start game_manager.service
+sudo systemctl status app_server.service
+sudo systemctl status game_manager.service
+sudo journalctl -u app_server.service
+sudo journalctl -u game_manager.service
+```
 
 ### Step 2: Program the Pods
 1. Write firmware for the ESP32 using Arduino IDE or PlatformIO.
