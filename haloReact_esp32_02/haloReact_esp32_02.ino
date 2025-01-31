@@ -132,8 +132,9 @@ void callback(char* topic, byte* message, unsigned int length) {
     int sep1 = received_message.indexOf('|');
     int sep2 = received_message.indexOf('|', sep1 + 1);
     int sep3 = received_message.indexOf('|', sep2 + 1);
+    int sep4 = received_message.indexOf('|', sep3 + 1);
 
-    if (sep1 == -1 || sep2 == -1 || sep3 == -1) {
+    if (sep1 == -1 || sep2 == -1 || sep3 == -1 || sep4 == -1) {
       Serial.println("Invalid message format.");
       return;
     }
@@ -141,7 +142,8 @@ void callback(char* topic, byte* message, unsigned int length) {
     String command_type = received_message.substring(0, sep1);
     String pod_id = received_message.substring(sep1 + 1, sep2);
     String color_hex = received_message.substring(sep2 + 1, sep3);
-    String function_name = received_message.substring(sep3 + 1);
+    String function_name = received_message.substring(sep3 + 1, sep4);
+    String brightness = received_message.substring(sep4 + 1);
 
     // Log if command type is not "NSTAT"
     if (command_type != "NSTAT") {
@@ -158,7 +160,7 @@ void callback(char* topic, byte* message, unsigned int length) {
     // Update LED color
     current_color_hex = color_hex;
     CRGB color = hexToCRGB(color_hex);
-    lightRGB(color);
+    lightRGB(color, brightness.toInt());
     Serial.print("Updated LED color to: ");
     Serial.println(color_hex);
 

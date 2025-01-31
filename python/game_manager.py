@@ -22,6 +22,7 @@ active_nodes = set()
 game_name = None
 current_blinking_pod = None
 muted = None
+brighness = None
 
 result_lock = Lock()
 data_file = "static/game_statistics.json"
@@ -44,6 +45,7 @@ def determine_action(status_message):
         
     elif command == "START" and parts[1] == "OUTRUN":
         muted = parts[2]
+        brighness = parts[3]
         return start_game_OUTRUN()
         
     elif command == "STAT" and game_name == "OUTRUN":
@@ -70,6 +72,7 @@ def determine_action(status_message):
 
     elif command == "START" and parts[1] == "RANDOM":
         muted = parts[2]
+        brighness = parts[3]
         return start_game_RANDOM()
 
     elif command == "STOP" and parts[1] == "RANDOM":
@@ -80,7 +83,8 @@ def determine_action(status_message):
         if parts[2] == "HIGH" and node_id == current_blinking_pod:
             # Turn off the current blinking pod and select a new one
             current_blinking_pod = random.choice([n["id"] for n in nodes if n["id"] != node_id])
-            return f"NSTAT|{node_id}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}\nNSTAT|{current_blinking_pod}|#00FF00|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
+            color = get_random_color()  # Generate a unique HEX color
+            return f"NSTAT|{node_id}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}\nNSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
         return ""     
         
     elif command == "STAT":
@@ -107,7 +111,7 @@ def start_game_OUTRUN():
     
     message = ""
     for i, node in enumerate(nodes):
-        color = f"#{i:02x}{255 - i:02x}{i * 2:02x}"  # Generate a unique HEX color
+        color = get_random_color()  # Generate a unique HEX color
         message += f"NSTAT|{node['id']}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}\n"
         
     message += f":: {game_name} STARTED ::"
@@ -122,7 +126,8 @@ def start_game_RANDOM():
     
     if len(nodes) > 0:
         current_blinking_pod = random.choice(nodes)["id"]  # Pick a random node
-        return f"NSTAT|{current_blinking_pod}|#00FF00|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
+        color = get_random_color()  # Generate a unique HEX color
+        return f"NSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
         
     return ""
 
@@ -150,6 +155,11 @@ def add_node(node_id):
     nodes.append({"id": node_id, "status": "active"})
     print(f"Added new node: {node_id}")
     return f"HELLO|{node_id}|DON'T PANIC"
+
+def get_random_color():
+    return "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), 
+                                        random.randint(0, 255), 
+                                        random.randint(0, 255))
 
 def save_game_statistics(game_name, time_played):
     """Save game statistics to the JSON file."""

@@ -40,7 +40,8 @@ def start_game_OUTRUN():
         game_result = None  # Reset game result when the game starts
     data = request.get_json()
     mute_status = data.get("mute", "MUTED")
-    client.publish(MQTT_TOPIC_STATUS, f"START|OUTRUN|{mute_status}")
+    brighness = data.get("brighness", 30)
+    client.publish(MQTT_TOPIC_STATUS, f"START|OUTRUN|{mute_status}|{brighness}")
     return jsonify({"message": "Game started!"}), 200
 
 # Flask Route to Get Timer Result
@@ -60,7 +61,8 @@ def start_game_RANDOM():
         game_result = None  # Reset game result when starting a new game
     data = request.get_json()
     mute_status = data.get("mute", "MUTED")
-    client.publish(MQTT_TOPIC_STATUS, f"START|RANDOM|{mute_status}")
+    brighness = data.get("brighness", 30)
+    client.publish(MQTT_TOPIC_STATUS, f"START|RANDOM|{mute_status}|{brighness}")
     return jsonify({"message": "Randomize Me! game started"}), 200
 
 # Flask Route to End the Randomize Me! Game

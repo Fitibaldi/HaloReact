@@ -27,8 +27,13 @@
 			<option value="styles_squid.css">Squid Games</option>
 		</select>
 	</section>
-
+	
 	<div>
+		<section id=brightness">
+			<label for="led-brightness">Game Speed:</label>
+			<input type="range" id="led-brightness" min="1" max="100" value="50" oninput="updateSliderValue(this.value)">
+			<span id="slider-value">30</span>
+		</section>
 		<section class="toggle" id="muterator">
 			<label class="toggle-label" for="mute-toggle">
 				<input type="checkbox" id="mute-toggle" checked>
@@ -74,12 +79,25 @@
         function getMuteStatus() {
             return document.getElementById("mute-toggle").checked ? "MUTED" : "UNMUTED";
         }
+		
+		function updateSliderValue(value) {
+			document.getElementById("slider-value").textContent = value;
+		}
+		
+		function getBrightness() {
+			return document.getElementById("led-brightness").value;
+		}
 
         document.getElementById("start-OUTRUN").addEventListener("click", () => {
+			let gameParameters = {
+				mute: getMuteStatus(),
+				brightness: getBrightness()
+			};
+			
             fetch("/start_game_OUTRUN", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mute: getMuteStatus() })
+                body: JSON.stringify(gameParameters)
             })
                 .then(response => response.json())
                 .then(data => {
@@ -88,10 +106,15 @@
         });
 
         document.getElementById("start-game-RANDOM").addEventListener("click", () => {
+			let gameParameters = {
+				mute: getMuteStatus(),
+				brightness: getBrightness()
+			};
+			
             fetch("/start_game_RANDOM", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mute: getMuteStatus() })
+                body: JSON.stringify(gameParameters)
             })
                 .then(response => response.json())
                 .then(data => {
