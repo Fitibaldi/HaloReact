@@ -35,7 +35,7 @@ if not os.path.exists(data_file):
 
 # Algorithm function
 def determine_action(status_message):
-    global game_timer_start, game_timer_end, active_nodes, current_blinking_pod, muted
+    global game_timer_start, game_timer_end, active_nodes, current_blinking_pod, muted, brighness
 
     parts = status_message.split('|')
     command = parts[0]
@@ -55,7 +55,7 @@ def determine_action(status_message):
         if parts[2] == "HIGH":
             # Turn off the pod and record time
             active_nodes.discard(node_id)
-            action = f"NSTAT|{node_id}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}"
+            action = f"NSTAT|{node_id}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}|{brighness}"
 
             if len(active_nodes) + 1 == len(nodes):  # First node clicked
                 game_timer_start = time.time()
@@ -82,9 +82,19 @@ def determine_action(status_message):
         node_id = parts[1]
         if parts[2] == "HIGH" and node_id == current_blinking_pod:
             # Turn off the current blinking pod and select a new one
-            current_blinking_pod = random.choice([n["id"] for n in nodes if n["id"] != node_id])
+            valid_nodes = [n["id"] for n in nodes if n["id"] != node_id]
+            
+            if valid_nodes:
+                current_blinking_pod = random.choice(valid_nodes)
+            else:
+                current_blinking_pod = node_id
+            
             color = get_random_color()  # Generate a unique HEX color
-            return f"NSTAT|{node_id}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}\nNSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
+            return (
+                f"NSTAT|{node_id}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}|{brighness}\n"
+                f"NSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}"
+)
+
         return ""     
         
     elif command == "STAT":
@@ -98,13 +108,13 @@ def determine_action(status_message):
             new_color = "#005000"
             buzz_melody = "playGoalSignal" if muted != 'MUTED' else "NONE"
         # Return the formatted message
-        return f"NSTAT|{parts[1]}|{new_color}|{buzz_melody}"
+        return f"NSTAT|{parts[1]}|{new_color}|{buzz_melody}|{brighness}"
         
     return f"ERR|unknown exception for message {status_message}"
 
 # Function to start a game
 def start_game_OUTRUN():
-    global active_nodes, game_name, muted
+    global active_nodes, game_name, muted, brighness
     active_nodes = {node["id"] for node in nodes}
     
     game_name = "OUTRUN"
@@ -112,14 +122,14 @@ def start_game_OUTRUN():
     message = ""
     for i, node in enumerate(nodes):
         color = get_random_color()  # Generate a unique HEX color
-        message += f"NSTAT|{node['id']}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}\n"
+        message += f"NSTAT|{node['id']}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}\n"
         
     message += f":: {game_name} STARTED ::"
     return message.strip()
 
 # Function to handle the start of the Randomize Me! game
 def start_game_RANDOM():
-    global current_blinking_pod, game_name, game_timer_start, muted
+    global current_blinking_pod, game_name, game_timer_start, muted, brighness
     
     game_name = 'RANDOM'
     game_timer_start = time.time()
@@ -127,7 +137,7 @@ def start_game_RANDOM():
     if len(nodes) > 0:
         current_blinking_pod = random.choice(nodes)["id"]  # Pick a random node
         color = get_random_color()  # Generate a unique HEX color
-        return f"NSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}"
+        return f"NSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}"
         
     return ""
 
@@ -138,12 +148,17 @@ def stop_game_RANDOM():
     game_name = None
     
     game_timer_end = time.time()
-    duration = game_timer_end - game_timer_start
+    
+    if game_timer_start is None:
+        duration = 0.0
+    else:
+        duration = game_timer_end - game_timer_start
+        
     print(f"Game finished in {duration:.2f} seconds!")
     
     current_blinking_pod = None
     save_game_statistics("RANDOM", duration)
-    return f"\nENDGAME|RANDOM|{duration:.2f} seconds!\n".join([f"NSTAT|{node['id']}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}" for node in nodes])
+    return f"\nENDGAME|RANDOM|{duration:.2f} seconds!\n".join([f"NSTAT|{node['id']}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}|{brighness}" for node in nodes])
 
 # Function to add a new node dynamically
 def add_node(node_id):
@@ -163,6 +178,8 @@ def get_random_color():
 
 def save_game_statistics(game_name, time_played):
     """Save game statistics to the JSON file."""
+    time_played = round(time_played, 0)  # Round to 2 decimal places
+    
     with result_lock:
         try:
             # Load existing data
