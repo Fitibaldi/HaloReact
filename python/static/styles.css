@@ -57,6 +57,38 @@ header {
     left: 1px;
     transition: transform 0.3s ease;
 }
+/* Tab navigation */
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tab-link {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.tab-link.active, .tab-link:hover {
+    background-color: #555;
+}
+
+/* Hide all tab content by default */
+.tab-content {
+    display: none;
+    text-align: center;
+}
+
+/* Show active tab content */
+.tab-content.active {
+    display: block;
+}
+
 
 /* Custom Thumb (Handle) */
 input[type="range"]::-webkit-slider-thumb {

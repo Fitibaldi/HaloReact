@@ -34,6 +34,10 @@ header {
     transform: translateX(20px);
 }
 
+.tab-link {
+    background-color: #444;
+}
+
 
 h1 {
     color: #c19393ff; /* Grey text */

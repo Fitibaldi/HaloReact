@@ -45,25 +45,31 @@
 		<p id="timer"></p>
 	</div>
 	
-    <section class="game" id="outrun-game">
-        <div class="game-banner" style="background-image: url('{{ url_for('static', filename='img/game_outrun.png') }}">
-			<div class="blurred-background"></div>
-            <h1>Outrun Yourself!</h1>
-            <p>All the pods start with different colors. Turn them off as fast as you can!</p>
-            <button id="start-OUTRUN">Start Game</button>
-        </div>
-    </section>
+	<div class="tabs">
+		<button class="tab-link active" onclick="openTab(event, 'outrun-game')">Outrun Yourself</button>
+		<button class="tab-link" onclick="openTab(event, 'randomize-game')">Randomize Me</button>
+	</div>
 
-    <section class="game" id="randomize-game">
-        <div class="game-banner" style="background-image: url('{{ url_for('static', filename='img/game_randomize.png') }}">
+	<div id="outrun-game" class="tab-content active">
+		<div class="game-banner" style="background-image: url('{{ url_for('static', filename='img/game_outrun.png') }}');">
+			<div class="blurred-background"></div>
+			<h1>Outrun Yourself!</h1>
+			<p>All the pods start with different colors. Turn them off as fast as you can!</p>
+			<button id="start-OUTRUN">Start Game</button>
+		</div>
+	</div>
+
+	<div id="randomize-game" class="tab-content">
+		<div class="game-banner" style="background-image: url('{{ url_for('static', filename='img/game_randomize.png') }}');">
 			<div class="blurred-background"></div>
 			<h1>Randomize Me!</h1>
 			<p>Only one pod blinks. Turning it off will make another one blink. Test your speed and randomness!</p>
 			<button id="start-game-RANDOM">Start Game</button>
 			<button id="end-game-RANDOM">End Game</button>
 			<p id="status"></p>
-        </div>
-    </section>
+		</div>
+	</div>
+
 
     <script>
 		// Find all game-banner elements
@@ -160,5 +166,30 @@
 			localStorage.setItem("selectedTheme", selectedTheme); // Save the selected theme
 		});
     </script>
+	<script>
+		function openTab(event, tabId) {
+			// Hide all tab contents
+			document.querySelectorAll(".tab-content").forEach(tab => {
+				tab.style.display = "none";
+			});
+
+			// Remove "active" class from all buttons
+			document.querySelectorAll(".tab-link").forEach(tab => {
+				tab.classList.remove("active");
+			});
+
+			// Show the selected tab content
+			document.getElementById(tabId).style.display = "block";
+
+			// Mark the clicked tab as active
+			event.currentTarget.classList.add("active");
+		}
+
+		// Ensure the first tab is visible by default
+		document.addEventListener("DOMContentLoaded", function() {
+			document.getElementById("outrun-game").style.display = "block";
+		});
+	</script>
+
 </body>
 </html>

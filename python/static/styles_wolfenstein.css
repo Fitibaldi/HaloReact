@@ -58,6 +58,10 @@ header {
     filter: sepia(1) contrast(1.1);
 }
 
+.tab-link {
+    background-color: #82123b;
+}
+
 /* Headings with a vintage look */
 h1 {
     font-family: 'UnifrakturMaguntia', sans-serif;

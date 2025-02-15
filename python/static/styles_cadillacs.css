@@ -37,6 +37,10 @@ header {
     border: 2px solid #00cc00; /* Green border */
 }
 
+.tab-link {
+    background-color: #FF5D2C; /* Orange */
+}
+
 p {
     color: #00B14D; /* Grey text */
 }
@@ -50,7 +54,7 @@ h1 {
 }
 
 button {
-    background-color: #FF5D2C; /* Dark green */
+    background-color: #FF5D2C; /* Orange */
     color: #fff;
 }
 

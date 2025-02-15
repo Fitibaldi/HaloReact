@@ -159,6 +159,29 @@ sudo nmcli con up WIFI_HOME
 ip addr show wlan0
 ```
 
+#### Enable mDNS on Raspberry Pi
+1. **Ensure Avahi is installed on the Raspberry Pi:**
+```bash
+sudo apt update
+sudo apt install avahi-daemon -y
+```
+
+2. **Start and enable Avahi:**
+```bash
+sudo systemctl enable avahi-daemon
+sudo systemctl start avahi-daemon
+```
+
+3. **Check if Avahi is running:**
+```bash
+systemctl status avahi-daemon
+```
+
+4. **Try pinging again from another computer:**
+```bash
+ping raspberrypi.local
+```
+
 #### Make the server to automatically start on Orange/Raspberry start
 ##### APP Server Configuration
 1. **Create a service**:

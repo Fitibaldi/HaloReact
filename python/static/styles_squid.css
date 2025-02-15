@@ -61,6 +61,10 @@ header {
     filter: brightness(1.1) contrast(1.2);
 }
 
+.tab-link {
+    background-color: #ff0055;
+}
+
 /* Headings with Squid Game style */
 h1 {
     font-family: 'Audiowide', regular;
