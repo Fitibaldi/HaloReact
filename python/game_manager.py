@@ -3,6 +3,7 @@ import time
 import random
 from threading import Timer
 from threading import Lock
+from collections import defaultdict
 import json
 import os
 
@@ -24,6 +25,17 @@ current_blinking_pod = None
 muted = None
 brighness = None
 
+#For CHALLENGER
+player_scores = defaultdict(int)  # Track taps per player
+player_pods = {}  # Stores which pod is currently assigned to each player
+# Define player colors (example colors in HEX)
+PLAYER_COLORS = {
+    1: "#FF0000",  # Red
+    2: "#0000FF",  # Blue
+    3: "#00FF00",  # Green
+    4: "#FFFF00"   # Yellow
+}
+
 result_lock = Lock()
 data_file = "static/game_statistics.json"
 
@@ -35,7 +47,7 @@ if not os.path.exists(data_file):
 
 # Algorithm function
 def determine_action(status_message):
-    global game_timer_start, game_timer_end, active_nodes, current_blinking_pod, muted, brighness
+    global game_timer_start, game_timer_end, active_nodes, current_blinking_pod, muted, brighness, player_scores, player_pods
 
     parts = status_message.split('|')
     command = parts[0]
@@ -95,7 +107,51 @@ def determine_action(status_message):
                 f"NSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}"
 )
 
-        return ""     
+        return ""
+        
+    elif command == "START" and parts[1] == "CHALLENGER":
+        muted = parts[2]
+        brighness = parts[3]
+        return start_game_CHALLENGER(int(parts[4]))
+
+    elif command == "STOP" and parts[1] == "CHALLENGER":
+        return stop_game_CHALLENGER()
+
+    elif command == "STAT" and game_name == 'CHALLENGER':
+        node_id = parts[1]
+        
+        if parts[2] == "HIGH":
+            # Find which player owns the tapped pod
+            player_id = next((p_id for p_id, pod_id in player_pods.items() if pod_id == node_id), None)
+
+            if player_id is None:
+                return f"ERR|Tapped pod is not assigned to a user. Current assignments: {player_pods}"
+                
+            # Increase player tap count
+            player_scores[player_id] += 1
+
+            # Find available pods (those not currently assigned)
+            assigned_pods = set(player_pods.values())
+            available_pods = [node["id"] for node in nodes if node["id"] not in assigned_pods]
+
+            # Assign a new pod to the player
+            if available_pods:
+                new_pod = random.choice(available_pods)
+            else:
+                # No free pods, assign the pod of the lowest-scoring player
+                lowest_scoring_player = min(player_scores, key=player_scores.get)
+                new_pod = player_pods[lowest_scoring_player]
+
+            # Update player pod assignment
+            player_pods[player_id] = new_pod
+            color = PLAYER_COLORS.get(player_id, "#FFFFFF")
+            
+            return (
+                f"NSTAT|{node_id}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}|{brighness}\n"
+                f"NSTAT|{new_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}"
+)
+
+        return ""
         
     elif command == "STAT":
         # Check if ButtonStatus is "HIGH"
@@ -137,7 +193,7 @@ def start_game_RANDOM():
     if len(nodes) > 0:
         current_blinking_pod = random.choice(nodes)["id"]  # Pick a random node
         color = get_random_color()  # Generate a unique HEX color
-        return f"NSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}"
+        return f"NSTAT|{current_blinking_pod}|{color}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}\n:: {game_name} STARTED ::"
         
     return ""
 
@@ -170,6 +226,66 @@ def add_node(node_id):
     nodes.append({"id": node_id, "status": "active"})
     print(f"Added new node: {node_id}")
     return f"HELLO|{node_id}|DON'T PANIC"
+    
+# Function to handle the start of the CHALLENGER game
+def start_game_CHALLENGER(num_players):
+    global game_name, game_timer_start, muted, brighness, player_pods, player_scores, nodes
+    
+    game_name = 'CHALLENGER'
+    game_timer_start = time.time()
+    player_scores = defaultdict(int) # Reset scores
+    player_pods = {}
+    
+    num_players = min(int(num_players), len(nodes))  # Ensure valid player count
+    
+    if len(nodes) > 0:
+        # Assign a random pod to each player
+        assigned_pods = random.sample(nodes, num_players)
+        player_pods = {i + 1: pod["id"] for i, pod in enumerate(assigned_pods)}  # {player_id: pod_id}
+        
+        # Construct message
+        messages = [
+            f"NSTAT|{pod['id']}|{PLAYER_COLORS.get(i+1, '#FFFFFF')}|{'playStartSignal' if muted != 'MUTED' else 'NONE'}|{brighness}"
+            for i, pod in enumerate(assigned_pods)
+        ]
+        
+        # Construct messages for unassigned pods (turn off)
+        unassigned_messages = [
+            f"NSTAT|{node['id']}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}|{brighness}"
+            for node in nodes if node not in assigned_pods
+        ]
+        
+        messages = messages + unassigned_messages
+
+        messages.append(f":: {game_name} STARTED ::")
+        
+        return "\n".join(messages)  # Efficient string concatenation
+        
+    return ""
+
+# Function to handle the stop of the CHALLENGER game
+def stop_game_CHALLENGER():
+    global current_blinking_pod, game_name, game_timer_start, game_timer_end, muted
+    
+    game_name = None
+    
+    game_timer_end = time.time()
+    
+    if game_timer_start is None:
+        duration = 0.0
+    else:
+        duration = game_timer_end - game_timer_start
+        
+    print(f"Game finished in {duration:.2f} seconds!")
+    
+    save_game_statistics("CHALLENGER", duration)
+    
+    formatted_scores = json.dumps({str(k): v for k, v in player_scores.items()})  # Ensure string keys
+    
+    current_blinking_pod = None
+    print(f"Player scores: {formatted_scores}")
+    return f"\nENDGAME|CHALLENGER|{duration:.2f} seconds!|{formatted_scores}\n".join([f"NSTAT|{node['id']}|#000000|{'playDeviceDisconnect' if muted != 'MUTED' else 'NONE'}|{brighness}" for node in nodes])
+
 
 def get_random_color():
     return "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), 

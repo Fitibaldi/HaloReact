@@ -89,6 +89,23 @@ header {
     display: block;
 }
 
+/* Slider styling (uses same theme as other UI elements) */
+#players {
+    width: 50%;
+    margin: 10px 0;
+}
+
+#player-count {
+    font-weight: bold;
+    color: #ffcc00; /* Adjust to match the theme */
+}
+
+/* Results section */
+#challenger-results {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #ffffff;
+}
 
 /* Custom Thumb (Handle) */
 input[type="range"]::-webkit-slider-thumb {
@@ -143,7 +160,11 @@ input[type="range"]::-moz-range-thumb {
 
 /* Ensure content is on top */
 .game-banner h1, 
+.game-banner h2,
 .game-banner p, 
+.game-banner label,
+.game-banner input,
+.game-banner span,
 .game-banner button {
     position: relative;
     z-index: 1;

@@ -16,21 +16,52 @@ STATS_FILE_PATH = 'static/game_statistics.json'
 
 # Global variable to store the game result
 game_result = None
+challenger_scores = None
 result_lock = threading.Lock()
+
+# Store player scores
+game_scores = {}
 
 # MQTT Callback for message
 def on_message(client, userdata, msg):
-    global game_result
+    global game_result, challenger_scores
     if msg.topic == MQTT_TOPIC_ACTION:
         payload = msg.payload.decode()
+        # TODO catch the CHALLENGER game to get the result as well
         if payload.startswith("ENDGAME"):
             with result_lock:
                 game_result = payload.split("|")[2]  # Extract the time (e.g., "4:42")
+            if payload.split("|")[1] == "CHALLENGER":
+                try:
+                    # Convert scores to dictionary format: {"1": 10, "2": 5}
+                    challenger_scores = json.loads(payload.split("|")[3])
+                except json.JSONDecodeError:
+                    print(f"[ERROR] Invalid JSON in challenger_scores: {payload.split("|")[3]}!")
+                    challenger_scores = {}
 
 # Flask Route for Home Page
 @app.route("/")
 def home():
     return render_template("index.html")
+
+# Flask Route to Get Timer Result
+@app.route("/get_timer", methods=["GET"])
+def get_timer():
+    global game_result
+    with result_lock:
+        if game_result:
+            return jsonify({"time": game_result}), 200
+    return jsonify({"time": "Timer running..."}), 200
+
+# Flask Route to Get Challenger Score
+@app.route("/get_challenger_score", methods=["GET"])
+def get_challenger_score():
+    global challenger_scores, game_result
+    with result_lock:
+        if game_result and challenger_scores:
+            print(f"challenger_scores: {challenger_scores}")
+            return jsonify({"challenger_scores": challenger_scores}), 200
+    return ""
 
 # Flask Route to Start the Game
 @app.route("/start_game_OUTRUN", methods=["POST"])
@@ -43,15 +74,6 @@ def start_game_OUTRUN():
     brightness = data.get("brightness", 30)
     client.publish(MQTT_TOPIC_STATUS, f"START|OUTRUN|{mute_status}|{brightness}")
     return jsonify({"message": "Game started!"}), 200
-
-# Flask Route to Get Timer Result
-@app.route("/get_timer", methods=["GET"])
-def get_timer():
-    global game_result
-    with result_lock:
-        if game_result:
-            return jsonify({"time": game_result}), 200
-    return jsonify({"time": "Timer running..."}), 200
 
 # Flask Route to Start the Randomize Me! Game
 @app.route("/start_game_RANDOM", methods=["POST"])
@@ -70,7 +92,27 @@ def start_game_RANDOM():
 def end_game_RANDOM():
     client.publish(MQTT_TOPIC_STATUS, "STOP|RANDOM")
     return jsonify({"message": "Randomize Me! game ended"}), 200
+    
+# Flask Route to Start Challenger Game
+@app.route("/start_game_CHALLENGER", methods=["POST"])
+def start_game_CHALLENGER():
+    global game_scores
+    data = request.get_json()
+    mute_status = data.get("mute", "MUTED")
+    brightness = data.get("brightness", 30)
+    num_players = int(data.get("numPlayers", 2))
+    game_scores = {str(i+1): 0 for i in range(num_players)}  # Initialize scores
+    
+    print(f"Challenger Game started with {num_players} players!")
+    client.publish(MQTT_TOPIC_STATUS, f"START|CHALLENGER|{mute_status}|{brightness}|{num_players}")
+    return jsonify({"message": f"<h2>CHALLENGER game started with {num_players} players</h2>"}), 200
 
+# Flask Route to End the CHALLENGER Game
+@app.route("/end_game_CHALLENGER", methods=["POST"])
+def end_game_CHALLENGER():
+    client.publish(MQTT_TOPIC_STATUS, "STOP|CHALLENGER")
+    return jsonify({"message": "<h2>CHALLENGER game ended</h2>"}), 200
+    
 @app.route("/statistics")
 def statistics():
     return render_template("statistics.html")

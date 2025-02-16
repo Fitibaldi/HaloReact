@@ -29,10 +29,10 @@
 	</section>
 	
 	<div>
-		<section id=brightness">
+		<section id="brightness">
 			<label for="led-brightness">Game Speed:</label>
-			<input type="range" id="led-brightness" min="1" max="100" value="50" oninput="updateSliderValue(this.value)">
-			<span id="slider-value">30</span>
+			<input type="range" id="led-brightness" min="1" max="100" value="50" oninput="updateSliderValue(this.value, 'brightness-value')">
+			<span id="brightness-value">30</span>
 		</section>
 		<section class="toggle" id="muterator">
 			<label class="toggle-label" for="mute-toggle">
@@ -48,6 +48,7 @@
 	<div class="tabs">
 		<button class="tab-link active" onclick="openTab(event, 'outrun-game')">Outrun Yourself</button>
 		<button class="tab-link" onclick="openTab(event, 'randomize-game')">Randomize Me</button>
+		<button class="tab-link" onclick="openTab(event, 'challenger-game')">Challenger</button>
 	</div>
 
 	<div id="outrun-game" class="tab-content active">
@@ -70,29 +71,81 @@
 		</div>
 	</div>
 
+	<!-- Challenger Game Tab -->
+	<div id="challenger-game" class="tab-content">
+		<div class="game-banner" style="background-image: url('{{ url_for('static', filename='img/game_challenger.png') }}');">
+			<div class="blurred-background"></div>
+			<h1>Challenger</h1>
+			<p>Every player has their own color. Tap the pods to score points!</p>
 
-    <script>
-		// Find all game-banner elements
-		const gameBanners = document.querySelectorAll('.game-banner');
+			<!-- Players Slider -->
+			<label for="players">Players:</label>
+			<input type="range" id="players" min="2" max="4" value="2" oninput="updateSliderValue(this.value, 'player-count')">
+			<span id="player-count">2</span>
 
-		gameBanners.forEach((banner) => {
-			const backgroundImage = banner.style.backgroundImage; // Get background-image from inline style
-			const blurredBackground = banner.querySelector('.blurred-background');
-			blurredBackground.style.backgroundImage = backgroundImage; // Apply it to the blurred layer
-		});
+			<button id="start-game-CHALLENGER">Start Game</button>
+			<button id="end-game-CHALLENGER">End Game</button>
+
+			<div id="challenger-results"></div>
+		</div>
+	</div>
+
+	<script>
+		function updateChallengerResult() {
+		fetch("/get_challenger_score")
+			.then(response => response.json())
+			.then(data => {
+				 if (!data.challenger_scores) return;
+
+				let resultsHtml = `<h2>CHALLENGER GAME ENDED</h2>`;
+
+				for (const [player, score] of Object.entries(data.challenger_scores)) {
+					let color = PLAYER_COLORS[player] || "#FFFFFF"; // Default to white if not found
+					resultsHtml += `
+						<p style="color: ${color}; font-weight: bold;">
+							<span style="display: inline-block; width: 15px; height: 15px; background: ${color}; border-radius: 50%; margin-right: 5px;"></span>
+							Player ${player}: ${score} taps
+						</p>
+					`;
+				}
+
+				document.getElementById("challenger-results").innerHTML = resultsHtml;
+			})
+			.catch(error => console.error("Error updating challenger results:", error));
+        }
+		
+	    // Player colors map (must match server-side colors)
+		const PLAYER_COLORS = {
+			1: "#FF0000",  // Red
+			2: "#0000FF",  // Blue
+			3: "#00FF00",  // Green
+			4: "#FFFF00"   // Yellow
+		};
+		
+        setInterval(updateChallengerResult, 2000); // Update Challenger Result every 2nd second
 	</script>
 	<script>
         function getMuteStatus() {
             return document.getElementById("mute-toggle").checked ? "MUTED" : "UNMUTED";
         }
 		
-		function updateSliderValue(value) {
-			document.getElementById("slider-value").textContent = value;
+		function updateSliderValue(value, id) {
+			document.getElementById(id).textContent = value;
 		}
 		
 		function getBrightness() {
 			return document.getElementById("led-brightness").value;
+		}	
+		
+		function getNumPlayers() {
+			return document.getElementById("players").value;
 		}
+		
+		document.addEventListener("DOMContentLoaded", function() {
+			updateSliderValue(document.getElementById("led-brightness").value, "brightness-value-value");
+			updateSliderValue(document.getElementById("players").value, "player-count");
+		});
+
 
         document.getElementById("start-OUTRUN").addEventListener("click", () => {
 			let gameParameters = {
@@ -147,7 +200,7 @@
         }
 
         setInterval(updateTimer, 1000); // Update timer every second
-
+		
 		// Select the dropdown and the theme stylesheet link
 		const styleSelect = document.getElementById("style-select");
 		const themeStylesheet = document.getElementById("theme-stylesheet");
@@ -165,7 +218,49 @@
 			themeStylesheet.href = `/static/${selectedTheme}`;
 			localStorage.setItem("selectedTheme", selectedTheme); // Save the selected theme
 		});
-    </script>
+
+		document.getElementById("start-game-CHALLENGER").addEventListener("click", () => {
+			let gameParameters = {
+				mute: getMuteStatus(),
+				brightness: getBrightness(),
+				numPlayers: getNumPlayers()
+			};
+
+			fetch("/start_game_CHALLENGER", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(gameParameters)
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log(data.message);
+				document.getElementById("challenger-results").innerHTML = data.message;
+				})
+			.catch(error => console.error("Error:", error));
+		});
+
+		document.getElementById("end-game-CHALLENGER").addEventListener("click", () => {
+			fetch("/end_game_CHALLENGER", {
+				method: "POST"
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log(data.message);
+				document.getElementById("challenger-results").innerHTML = data.message;
+			})
+			.catch(error => console.error("Error:", error));
+		});
+	</script>
+    <script>
+		// Find all game-banner elements
+		const gameBanners = document.querySelectorAll('.game-banner');
+
+		gameBanners.forEach((banner) => {
+			const backgroundImage = banner.style.backgroundImage; // Get background-image from inline style
+			const blurredBackground = banner.querySelector('.blurred-background');
+			blurredBackground.style.backgroundImage = backgroundImage; // Apply it to the blurred layer
+		});
+	</script>
 	<script>
 		function openTab(event, tabId) {
 			// Hide all tab contents
